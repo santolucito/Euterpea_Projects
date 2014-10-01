@@ -7,7 +7,6 @@ TODO - write the file
 > import Euterpea
 > import Control.Arrow
 
-> type AudSF a b = SigFun AudRate a b
 > sinTab1 :: Table
 > sinTab1 = tableSinesN 4096 [1]
 

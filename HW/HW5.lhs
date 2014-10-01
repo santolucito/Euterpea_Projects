@@ -7,7 +7,6 @@
 
 Use osc to generate some waves
 
-> type AudSF a b = SigFun AudRate a b
 
 > sqrTab, sawTab, triTab :: Table
 > sqrTab = tableLinear 4096 1 [(0.5,1),(0,-1),(0.5,-1)]

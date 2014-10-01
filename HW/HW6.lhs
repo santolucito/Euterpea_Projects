@@ -9,7 +9,6 @@
 > import Data.Maybe (listToMaybe,catMaybes)
 
 
-> type AudSF a b = SigFun AudRate a b
 
 > sinTab1,sinTab2 :: Table
 > sinTab1 = tableSinesN 4096 [1]

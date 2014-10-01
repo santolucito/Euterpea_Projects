@@ -9,8 +9,6 @@
 > import Data.Maybe (listToMaybe,catMaybes)
 
 
-> type AudSF a b = SigFun AudRate a b
-
 Exercise 1
 Violin plot
 

@@ -8,8 +8,8 @@
 > import Data.Complex (Complex ((:+)),polar)
 > import Data.Maybe (listToMaybe,catMaybes)
 
-> foldSF :: Clock c => (a -> b -> b) -> b -> [SigFun c () a] -> SigFun c () b
-> foldSF f b sfs =
+> foldSF1 :: Clock c => (a -> b -> b) -> b -> [SigFun c () a] -> SigFun c () b
+> foldSF1 f b sfs =
 >   foldr g (constA b) sfs where
 >     g sfa sfb =
 >       proc () -> do
@@ -67,7 +67,6 @@
 
 a)
 
-> type AudSF a b = SigFun AudRate a b
 
 gernates a tone that varies from .5 to 2x the input frq
 at the rate of vfrq 

@@ -104,9 +104,6 @@ Exercise 7.4
 > instance (Enum a, Bounded a, Eq b) => Eq (a -> b) where
 >   f1 == f2 = myCompare (map f1 [minBound..maxBound]) (map f2 [minBound..maxBound])
 
-> instance Bounded PitchClass where
->   minBound = Cff
->   maxBound = Bss
 
 > testf1 :: PitchClass -> Int
 > testf1 p = 1
