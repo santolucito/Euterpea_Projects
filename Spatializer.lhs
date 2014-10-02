@@ -21,7 +21,7 @@ maybe not...
 >    proc (l,r) -> do
 >       outA -< (l*a,r*b)
 
-chec
+check
 we want to delay the sound to the "farther away" ear by 
 the speed of sound
 take a stereo signal and delay one (both, with one being 0) line
