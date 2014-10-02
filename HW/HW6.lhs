@@ -85,13 +85,14 @@ funky noise in the signal
   
 3. create a stereo signal
 
-cant remmeber the easy way to turn a number into a signal
-there is one right?
+
+switching two signals back and forth
+also oscfixed is equiv to next line below
 
 > stereoWav :: AudSF () (Double, Double)
 > stereoWav = 
 >     proc () -> do
->       a <- osc sinTab1 0 -< 440
+>       a <- oscFixed 440 -< ()
 >       b <- osc sinTab1 0 -< 300
 >       pan <- osc sinTab1 0 -< 0.1
 >       outA -< (b*(abs pan-1)+a*pan,a*(abs pan-1)+b*pan)
