@@ -11,6 +11,8 @@ for now we just play with delays based on speed of sound, oh well
 > import Euterpea
 > import Control.Arrow
 
+> import System.IO.Unsafe
+
 create a stereo a signal from a mono signal
   
 > stereoSplit :: AudSF (Double) (Double, Double)
@@ -62,6 +64,10 @@ arrive at each ear
 
 > l = 0.7
 > r = 0.3
-> runme3 = outFile "test.wav" 10 
->          (oscFixed 440 >>> stereoSplit >>> (stereoPan l r)
->           >>> (delayStereo $ earTime (-3,1)))
+> runme3 = outFile "test.wav" 10 (unsafePerformIO $ wavSF "input.wav")
+
+          ( oscFixed 440 >>> stereoSplit >>> (stereoPan l r)
+           >>> (delayStereo $ earTime (-3,1)))
+
+          (wavSF "input.wav" >>> stereoSplit >>> (stereoPan l r)
+           >>> (delayStereo $ earTime (-3,1)))
