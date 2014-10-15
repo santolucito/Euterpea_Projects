@@ -14,7 +14,7 @@ for now we just play with delays based on speed of sound, oh well
 > import System.IO.Unsafe
 
 create a stereo a signal from a mono signal
-  
+
 > stereoSplit :: AudSF (Double) (Double, Double)
 > stereoSplit =  arr (\mono -> (mono,mono))
 
@@ -27,26 +27,26 @@ maybe not...
 >    proc (l,r) -> do
 >       outA -< (l*a,r*b)
 
-we want to delay the sound to the "farther away" ear by 
+we want to delay the sound to the "farther away" ear by
 the speed of sound
 take a stereo signal and delay one (both, with one being 0) line
 
 > delayStereo :: (Double, Double) -> AudSF (Double, Double) (Double, Double)
-> delayStereo (l_delay, r_delay) = 
+> delayStereo (l_delay, r_delay) =
 >	proc (l,r) -> do
 >     l' <- delayLine l_delay -< l
 >     r' <- delayLine r_delay -< r
 >     outA -< (l',r')
 
 Given a point distance away from center of person's head
-(meters,meters), how much how long will it take for sound to 
+(meters,meters), how much how long will it take for sound to
 arrive at each ear
 
-> type Point = (Double,Double) 
+> type Point = (Double,Double)
 
 > earTime :: Point -> (Double, Double)
 > earTime p1 =
->   let 
+>   let
 >     p2 = (0.08, 0)
 >     p3 = (-0.08, 0)
 >     p1p2 = distance p1 p2
@@ -64,7 +64,7 @@ arrive at each ear
 
 > l = 0.7
 > r = 0.3
-> runme3 = outFile "test.wav" 10 (unsafePerformIO $ wavSF "input.wav")
+> runme3 = wavSFStereo "input.wav" >>= outFile "test.wav" 10
 
           ( oscFixed 440 >>> stereoSplit >>> (stereoPan l r)
            >>> (delayStereo $ earTime (-3,1)))
