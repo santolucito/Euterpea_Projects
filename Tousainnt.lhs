@@ -1,4 +1,19 @@
 
+> module Main where
+> import Graphics.UI.GLUT
+
+> main :: IO ()
+> main = do
+>  (_progName, _args) <- getArgsAndInitialize
+>  _window <- createWindow "Hello World"
+>  displayCallback $= display
+>  mainLoop
+
+> display :: DisplayCallback
+> display = do
+>  clear [ ColorBuffer ]
+>  flush
+
 the R_clock type will represent the
 rhythm as translated to a circle
 
@@ -35,7 +50,7 @@ are present in a rhythm"
 >    in
 >        map (i_vec l) [1..8]
 
-> main =
+> other =
 >   let
 >     shiko   = build_clock [1,0,0,0,1,0,1,0,0,0,1,0,1,0,0,0]
 >     son     = build_clock [1,0,0,1,0,0,1,0,0,0,1,0,1,0,0,0]
@@ -50,4 +65,3 @@ are present in a rhythm"
 
 this geometric property could provide a heuristic for the discovery and
 automatic generation of other .good. rhythms
-
