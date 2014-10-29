@@ -9,6 +9,7 @@ one after another
 > import Euterpea.IO.Audio.PortAudioChannel
 > import Control.Arrow
 
+
 > import System.IO.Unsafe
 
  openChannel 100 100 >>= readChannel
@@ -59,3 +60,35 @@ learning monads
         outA -< a
 
 > runme6 = wavSFInf "input2.wav" >>= playSignal 20
+
+really need to start writing all these with numChans
+instead of Double or (double,Double)
+
+first is signal, second is volume
+
+> volume_control :: AudSF (Double,Double) (Double)
+> volume_control = arr (\(s,v) -> (s*v))
+
+> volume_control' :: AudSF (Double,Double) (Double)
+> volume_control' = proc (s,v) -> do
+>    a <- arr id -< (s*v)
+>    outA -< a
+
+> volume_slider :: UISF () (Double)
+> volume_slider = proc _ -> do
+>    a <- title "volume"  $ vSlider (0,1) 0 -< ()
+>    _ <- display -< a
+>    returnA -< a
+
+> mixer_board :: UISF () ()
+> mixer_board = title "Mixer" $ proc _ -> do
+>    v <- volume_slider -< ()
+>  --mainout
+>    returnA -< ()
+
+> main :: IO ()
+> main = runUI "UI Demo" mixer_board
+
+need to figure out how to use the UISF value now
+
+> runme7 = wavSFInf "input2.wav" >>= playSignal 20
