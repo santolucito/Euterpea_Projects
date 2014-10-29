@@ -46,4 +46,16 @@ learning monads
 >    x <- wavSFStereo "input.wav"
 >    return (x >>> toMono)
 
-> runme6 = my_arr3 >>= playSignal 10
+ my_arr4_2 = do
+    return ((return $ wavSFStereo "input.wav") >>> toMono)
+
+ my_arr5 =
+   let
+     x = do
+        return $ wavSFStereo "input.wav"
+   in
+      proc () -> do
+        a <- toMono -< x
+        outA -< a
+
+> runme6 = wavSFInf "input2.wav" >>= playSignal 20
