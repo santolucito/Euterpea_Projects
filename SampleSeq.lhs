@@ -4,11 +4,12 @@ jsut try and play two samples
 one after another
 
 
-> module SampleSeq where
+> module Main where
 > import Euterpea
 > import Euterpea.IO.Audio.PortAudioChannel
 > import Control.Arrow
-
+> import Control.Arrow.ArrowIO
+> import Control.Concurrent
 
 > import System.IO.Unsafe
 
@@ -77,17 +78,26 @@ first is signal, second is volume
 > volume_slider :: UISF () (Double)
 > volume_slider = proc _ -> do
 >    a <- title "volume"  $ vSlider (0,1) 0 -< ()
->    _ <- display -< a
->    returnA -< a
+>    _ <- display -< 1-a
+>    outA -< 1-a
+
+ toAudSF :: UISF a b -> AudSF () b
+toAudSF uisf = proc () -> do
+    a <- arr id -< uisf
+    outA -< a
 
 > mixer_board :: UISF () ()
 > mixer_board = title "Mixer" $ proc _ -> do
 >    v <- volume_slider -< ()
->  --mainout
+> --   _ <- arrIO0 runme7 -< ()
 >    returnA -< ()
 
 > main :: IO ()
-> main = runUI "UI Demo" mixer_board
+> main = do
+>  setNumCapabilities 2
+>  forkOn 1 $ runme7
+>  forkOn 2 $ runUI "UI Demo" mixer_board
+>  return ()
 
 need to figure out how to use the UISF value now
 
