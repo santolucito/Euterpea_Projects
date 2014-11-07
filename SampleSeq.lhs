@@ -95,10 +95,13 @@ toAudSF uisf = proc () -> do
 > main :: IO ()
 > main = do
 >  setNumCapabilities 2
->  forkOn 1 $ runme7
->  forkOn 2 $ runUI "UI Demo" mixer_board
+>  forkOn 1 $ runUI "UI Demo" mixer_board
+>  forkOn 2 $ runme7
 >  return ()
 
 need to figure out how to use the UISF value now
+will probably embed the audSF in UISF
+also need to embed IO() (from playSignal) into either arrow or runUI
+could also have runUI return a signal then play on another thread
 
 > runme7 = wavSFInf "input2.wav" >>= playSignal 20
