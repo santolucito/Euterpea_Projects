@@ -20,12 +20,12 @@ GUI
 > volume_slider v = proc _ -> do
 >    a <- title "volume"  $ vSlider (0,1) 0 -< ()
 >    _ <- display -< 1-a
->    writeTVar v 1-a
+> --   writeTChan v 1-a
 >    outA -< 1-a
 
 > mixer_board :: VolChan -> UISF () ()
 > mixer_board v = title "Mixer" $ proc _ -> do
->    v <- volume_slider -< ()
+>    _ <- volume_slider v -< ()
 >    returnA -< ()
 
 Audio
@@ -33,9 +33,9 @@ Audio
 > volume_control :: AudSF (Double,Double) (Double)
 > volume_control = arr (\(s,v) -> (s*v))
 
-> read_volume :: VolChan -> AudSF () (Double)
-> read_volume = proc () -> do
->   v <- readTVar
+ read_volume :: VolChan -> AudSF () (Double)
+ read_volume = proc () -> do
+   v <- readTChan
 
 > wavloop :: VolChan -> IO ()
 > wavloop v = wavSFInf "input2.wav" >>= playSignal 20
@@ -43,7 +43,7 @@ Audio
 
 > main :: IO ()
 > main = do
->  v <- newTVar 0
+>  v <- atomically newTChan
 >  setNumCapabilities 2
 >  forkOn 1 $ runUI "UI Demo" $ mixer_board v
 >  forkOn 2 $ wavloop v
