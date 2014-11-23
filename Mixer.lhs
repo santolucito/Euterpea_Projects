@@ -49,6 +49,11 @@ Audio
 >  forkOn 2 $ wavloop v
 >  return ()
 
+
+foo :: [Int] -> Int
+foo = map
+
+
 use STM to write the UISF value then read in the AudSF thread
  lift monad to arrow to allow for STM to work in arrow?
  at that point i can instead just lift m to arr for runUI and playSingal
