@@ -27,15 +27,17 @@ obsPositions = cycle [500,200,700,333,100,400]
 
 -- UPDATE -- ("m" is for Mario)
 
-step :: Bool -> [GameObject] -> [GameObject]
+step :: [Bool] -> [GameObject] -> [GameObject]
 step keys cs = map (update keys) cs
 
-update :: Bool -> GameObject -> GameObject
+update :: [Bool] -> GameObject -> GameObject
 update keys (Character x e)
     | e > 751 = Character (x+1.5) (750)
     | e < 0 = Character (x+1.5) (0) 
-    | keys == True = Character (x-3) (e-3)
-    | keys == False = Character (x+1.5) (e+1.5)
+    | keys!!0 == True = Character (x-3) (e-3)
+    | keys!!1 == True = Character (x+3) (e+1.5)
+    | keys!!0 == False = Character (x+1.5) (e+1.5)
+
 update keys (Obstacle x y w) 
     | x < 0 = Obstacle (800) (obsPositions!!w) (w+1)
     | x >= 0 = Obstacle (x-5) y w
@@ -59,7 +61,10 @@ obs x y = [move (x, y) $ filled red $ rect 25 100]
 runAt c s = let x = lift2 (,) c s
             in lift snd x
 
-input = runAt (Time.fps 60) (Keys.isDown Keys.SpaceKey) 
+getKeys= [(Keys.isDown Keys.SpaceKey), (Keys.isDown Keys.FKey)] 
+
+input :: Signal[Bool]
+input = runAt (Time.fps 60) $ combine getKeys
 
 
 {-| Bootstrap the game. -}
