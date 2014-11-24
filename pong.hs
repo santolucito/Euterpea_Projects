@@ -10,35 +10,34 @@ import qualified FRP.Helm.Keyboard as Keys
 import qualified FRP.Helm.Sample as S
 
 -- MODEL
-data Character = Character { x :: Int}
+data Character = Character { x :: Double,
+                             energy :: Double}
 			     --y :: Int,
 			     --vx :: Double,
 			     --vy :: Double,
 			    -- dir :: String }
 
-mario = Character 0
+bird = Character 0 750
 
 
 -- UPDATE -- ("m" is for Mario)
 
-step keys mario  | keys == True = Character $ (x mario)+1
-                 | keys == False = Character $ (x mario)
-                -- | fst keys == -1 = Character $ (x mario)-1 
-                -- | fst keys == 0 = Character (x mario)
+step :: Bool -> Character -> Character
+step keys bird  | energy bird > 751 = Character ((x bird)-1) (750)
+                | energy bird < 0 = Character ((x bird)-1) (0)  
+                | keys == True = Character ((x bird)+1) ((energy bird)-3)
+                | keys == False = Character ((x bird)-0.5) ((energy bird)+1.5)
 
 
 -- DISPLAY
 
+--need to scale to windows dimensions
 render :: Character -> (Int,Int) -> Element
-render c (w,h) = collage w h [rect (fromIntegral $ (*20) $ x c) 25 |> filled red]
+render c (w,h) = collage w h [rect ((*2) $ energy c) 25 |> filled red]
 
 
-{-
--- MARIO
-input = let delta = lift (\t -> t/20) (fps 25)
-        in  sampleOn delta (lift2 (,) delta Keyboard.arrows)
--}
---input' = runAt (Time.fps 60) Keys.arrows
+
+-- INPUT
 runAt c s = let x = lift2 (,) c s
             in lift snd x
 
@@ -52,4 +51,4 @@ main = do
   
   where
     config = defaultConfig { windowTitle = "Helm - Mario" }
-    stepper = foldp step mario input
+    stepper = foldp step bird input
