@@ -54,14 +54,27 @@ Audio
 > main :: IO ()
 > main = do
 >  runUI "UI test" mixer_board
+>  wavloop
+
+> kGUI :: Kleisli IO () Double
+> kGUI = Kleisli (\x -> do runUI "test" mixer_board)
+
+> kAudio :: Kleisli IO Double ()
+> kAudio = Kleisli (\v -> do wavloop v)
+
 
 > main' :: IO ()
 > main' = do
->  v <- atomically newTChan
->  setNumCapabilities 2
->  forkOn 1 $ runUI "UI Demo" $ mixer_board' v
->  forkOn 2 $ wavloop v
->  return ()
+>  runUI "UI test" mixer_board
+>  wavloop
+
+ main' :: IO ()
+ main' = do
+  v <- atomically newTChan
+  setNumCapabilities 2
+  forkOn 1 $ runUI "UI Demo" $ mixer_board v
+  forkOn 2 $ wavloop v
+  return ()
 
 
 foo :: [Int] -> Int
@@ -79,3 +92,26 @@ use STM to write the UISF value then read in the AudSF thread
       UISF and AudSF
 
 or does kleisli IO replace IO Monad
+
+an exampke of how to use klieslie
+
+> cat :: Kleisli IO Int ()
+> cat      = Kleisli (\x -> 
+>              do 
+>                putStrLn $ "cat" ++ show x
+>                return ())
+> dog :: Kleisli IO Int ()
+> dog      = Kleisli (\x ->
+>              do 
+>                putStrLn $ "dog" ++ show x
+>                return ())
+> catdog :: Kleisli IO Int ()
+> catdog   = cat &&& dog >>> arr (\(x, y) -> x)
+
+> h2Output :: IO()
+> h2Output = runKleisli catdog 1
+
+
+
+
+
