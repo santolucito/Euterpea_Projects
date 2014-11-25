@@ -10,27 +10,24 @@ one after another
 > import Control.Concurrent
 > import Control.Concurrent.STM
 
+> import System.IO.Unsafe
+
 STM
 
 > type VolChan = TChan Double
 
 GUI
 
+the problem with convertToUISF is that then you ahve to write enough samples
+to fill the buffer until the next tick of the clock (uisf at 60fps, audsf at 44k)
+so this is a bad idea
+
 > volume_slider :: UISF () (Double)
 > volume_slider = proc _ -> do
 >    a <- title "volume"  $ vSlider (0,1) 0 -< ()
 >    _ <- display -< 1-a
-> --   writeTChan v 1-a
+>    --writeTChan v 1-a
 >    outA -< 1-a
-
- mixer_board' :: VolChan -> UISF () ()
- mixer_board' v = title "Mixer" $ proc _ -> do
-    _ <- volume_slider v -< ()
-    returnA -< ()
-
-the problem with convertToUISF is that then you ahve to write enough samples
-to fill the buffer until the next tick of the clock (uisf at 60fps, audsf at 44k)
-so this is a bad idea
 
 > mixer_board :: UISF () ()
 > mixer_board = title "Mixer" $ proc _ -> do
@@ -40,16 +37,20 @@ so this is a bad idea
 
 Audio
 
-> volume_control :: AudSF (Double,Double) (Double)
-> volume_control = arr (\(s,v) -> (s*v))
+> volume_control :: AudSF (Double, Double) (Double)
+> volume_control = arr (\(s,v) -> (s* v))
 
- read_volume :: VolChan -> AudSF () (Double)
- read_volume = proc () -> do
-   v <- readTChan
+> read_volume :: AudSF VolChan Double
+> read_volume =  arr (\v -> unsafePerformIO $ atomically $ peekTChan v)
 
-> wavloop :: IO ()
-> wavloop = wavSFInf "input2.wav" >>= playSignal 20
+wavSF :: FilePath -> IO (AudSF () Double)
 
+> wavloop :: VolChan -> IO ()
+> wavloop v = 
+>   do
+>     inSig <- wavSFInf "input2.wav" 
+>     withV <- read_volume &&& inSig
+>     playSignal 20 withV
 
 > main :: IO ()
 > main = do
@@ -114,4 +115,4 @@ an exampke of how to use klieslie
 
 
 
-
+ 
