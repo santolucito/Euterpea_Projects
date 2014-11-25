@@ -13,13 +13,14 @@ import qualified FRP.Helm.Sample as S
 import Data.List
 -- MODEL
 data GameObject =  Character { y :: Double,
-                               energy :: Double}
+                               energy :: Double,
+                               active :: Bool}
                  | Obstacle { x :: Double,
                               y :: Double,
                               which :: Int}
                  | TextBox { i :: Int}
 
-bird = Character 300 750
+bird = Character 300 750 True
 
 obs1 = Obstacle 800 350 1
 obs2 = Obstacle 1200 200 3
@@ -37,14 +38,15 @@ step :: (Time,[Bool]) -> [GameObject] -> [GameObject]
 step keys cs = map (update keys) cs
 
 update :: (Time,[Bool]) -> GameObject -> GameObject
-update (t,keys) (Character y e)
-    | y > 550 = Character (550) e
-    | y < 0 = Character (0) e
-    | e > 751 = Character (y+1.5) (750)
-    | e < 0 = Character (y+1.5) (0) 
-    | keys!!0 == True = Character (y-3) (e-3)
-    | keys!!1 == True = Character (y+6) (e+1.5)
-    | keys!!0 == False = Character (y+1.5) (e+1.5)
+update (t,keys) (Character y e a)
+    | a == False = Character y e a
+    | y > 550 = Character (550) e True
+    | y < 0 = Character (0) e True 
+    | e > 751 = Character (y+1.5) (750) True
+    | e < 0 = Character (y+1.5) (0) True
+    | keys!!0 == True = Character (y-3) (e-3) True
+    | keys!!1 == True = Character (y+6) (e+1.5) True
+    | keys!!0 == False = Character (y+1.5) (e+1.5) True
 
 update (t,keys) (Obstacle x y w) 
     | x < 0 = Obstacle (800) (obsPositions!!w) (w+1)
@@ -59,7 +61,7 @@ render :: [GameObject] -> (Int,Int) -> Element
 render cs (w,h) = collage w h $ concat (map my_collage cs)
 
 my_collage :: GameObject -> [Form]
-my_collage (Character y e) = (healthBar e) ++ (player y)
+my_collage (Character y e a) = (healthBar e) ++ (player y)
 my_collage (Obstacle x y w) = obs x y w
 my_collage (TextBox i) = [move (300,9) $ toForm $ Text.text $ Text.color white $ Text.toText $ "Score: "++show i]
 
