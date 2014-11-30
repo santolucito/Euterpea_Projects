@@ -10,46 +10,90 @@ one after another
 > import Control.Concurrent
 > import Control.Concurrent.STM
 
+> import System.IO.Unsafe
+
 STM
 
 > type VolChan = TChan Double
 
 GUI
 
-> volume_slider :: VolChan -> UISF () (Double)
-> volume_slider v = proc _ -> do
+the problem with convertToUISF is that then you ahve to write enough samples
+to fill the buffer until the next tick of the clock (uisf at 60fps, audsf at 44k)
+so this is a bad idea
+    _ <- convertToUISF 60 60 
+
+
+> volume_slider :: UISF () (Double)
+> volume_slider = proc _ -> do
 >    a <- title "volume"  $ vSlider (0,1) 0 -< ()
 >    _ <- display -< 1-a
-> --   writeTChan v 1-a
 >    outA -< 1-a
 
+> writeArr :: VolChan -> UISF (Double) ()
+> writeArr v = arr (\x -> unsafePerformIO $ atomically $ writeTChan v x)
+
 > mixer_board :: VolChan -> UISF () ()
-> mixer_board v = title "Mixer" $ proc _ -> do
->    _ <- volume_slider v -< ()
+> mixer_board vc = title "Mixer" $ proc _ -> do
+>    v <- volume_slider -< ()
+>    _ <- writeArr vc -< 1-v
 >    returnA -< ()
 
 Audio
 
-> volume_control :: AudSF (Double,Double) (Double)
-> volume_control = arr (\(s,v) -> (s*v))
+> volume_control :: AudSF (Double, Double) (Double)
+> volume_control = arr (\(s,v) -> (s* v))
 
- read_volume :: VolChan -> AudSF () (Double)
- read_volume = proc () -> do
-   v <- readTChan
+> read_volume :: VolChan -> (AudSF () Double)
+> read_volume v =  arr (\x -> unsafePerformIO $ atomically $ peekTChan v)
+
+ read_volume :: AudSF VolChan Double
+ read_volume =  arr (\v -> unsafePerformIO $ atomically $ peekTChan v)
+
+
+wavSF :: FilePath -> IO (AudSF () Double)
+
+                     inSig <- unsafePerformIO $ wavSFInf "input2.wav" -< ()
+                     withVol <- read_volume v -< ()
+                     appVol <- volume_control -< withVol
+                     returnA -< appVol
 
 > wavloop :: VolChan -> IO ()
-> wavloop v = wavSFInf "input2.wav" >>= playSignal 20
+> wavloop v = 
+>   let sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& read_volume v) >>> volume_control
+>   in 
+>     do
+>       playSignal 20 sigToPlay
 
+
+ main :: IO ()
+ main = do
+  runUI "UI test" mixer_board
+  wavloop
+
+ kGUI :: Kleisli IO () Double
+ kGUI = Kleisli (\x -> do runUI "test" mixer_board)
+
+<<<<<<< HEAD
     d <- convertToUISF sr 0.1 myAutomaton -< (f1, f2)
 
+=======
+ kAudio :: Kleisli IO Double ()
+ kAudio = Kleisli (\v -> do wavloop v)
+>>>>>>> aee36ddeab14c18fb2210345d7cf23df21633d46
 
-> main :: IO ()
-> main = do
->  v <- atomically newTChan
+> main' :: IO ()
+> main' = do
+>  v <- newTChanIO
 >  setNumCapabilities 2
->  forkOn 1 $ runUI "UI Demo" $ mixer_board v
+>  forkOn 1 $ runUI "UI Demo" (mixer_board v)
 >  forkOn 2 $ wavloop v
 >  return ()
+
+
+foo :: [Int] -> Int
+foo = map
+
 
 use STM to write the UISF value then read in the AudSF thread
  lift monad to arrow to allow for STM to work in arrow?
@@ -62,3 +106,26 @@ use STM to write the UISF value then read in the AudSF thread
       UISF and AudSF
 
 or does kleisli IO replace IO Monad
+
+an exampke of how to use klieslie
+
+> cat :: Kleisli IO Int ()
+> cat      = Kleisli (\x -> 
+>              do 
+>                putStrLn $ "cat" ++ show x
+>                return ())
+> dog :: Kleisli IO Int ()
+> dog      = Kleisli (\x ->
+>              do 
+>                putStrLn $ "dog" ++ show x
+>                return ())
+> catdog :: Kleisli IO Int ()
+> catdog   = cat &&& dog >>> arr (\(x, y) -> x)
+
+> h2Output :: IO()
+> h2Output = runKleisli catdog 1
+
+
+
+
+ 
