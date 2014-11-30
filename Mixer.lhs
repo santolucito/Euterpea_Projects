@@ -21,7 +21,7 @@ GUI
 the problem with convertToUISF is that then you ahve to write enough samples
 to fill the buffer until the next tick of the clock (uisf at 60fps, audsf at 44k)
 so this is a bad idea
-    _ <- convertToUISF 60 60 
+    _ <- convertToUISF 60 60
 
 
 > volume_slider :: UISF () (Double)
@@ -59,9 +59,9 @@ wavSF :: FilePath -> IO (AudSF () Double)
                      returnA -< appVol
 
 > wavloop :: VolChan -> IO ()
-> wavloop v = 
+> wavloop v =
 >   let sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& read_volume v) >>> volume_control
->   in 
+>   in
 >     do
 >       playSignal 20 sigToPlay
 
@@ -74,13 +74,10 @@ wavSF :: FilePath -> IO (AudSF () Double)
  kGUI :: Kleisli IO () Double
  kGUI = Kleisli (\x -> do runUI "test" mixer_board)
 
-<<<<<<< HEAD
     d <- convertToUISF sr 0.1 myAutomaton -< (f1, f2)
 
-=======
  kAudio :: Kleisli IO Double ()
  kAudio = Kleisli (\v -> do wavloop v)
->>>>>>> aee36ddeab14c18fb2210345d7cf23df21633d46
 
 > main' :: IO ()
 > main' = do
@@ -110,13 +107,13 @@ or does kleisli IO replace IO Monad
 an exampke of how to use klieslie
 
 > cat :: Kleisli IO Int ()
-> cat      = Kleisli (\x -> 
->              do 
+> cat      = Kleisli (\x ->
+>              do
 >                putStrLn $ "cat" ++ show x
 >                return ())
 > dog :: Kleisli IO Int ()
 > dog      = Kleisli (\x ->
->              do 
+>              do
 >                putStrLn $ "dog" ++ show x
 >                return ())
 > catdog :: Kleisli IO Int ()
@@ -124,8 +121,3 @@ an exampke of how to use klieslie
 
 > h2Output :: IO()
 > h2Output = runKleisli catdog 1
-
-
-
-
- 
