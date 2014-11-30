@@ -40,6 +40,8 @@ Audio
 > wavloop :: VolChan -> IO ()
 > wavloop v = wavSFInf "input2.wav" >>= playSignal 20
 
+    d <- convertToUISF sr 0.1 myAutomaton -< (f1, f2)
+
 
 > main :: IO ()
 > main = do
