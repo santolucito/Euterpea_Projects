@@ -1,6 +1,5 @@
 
-{-| Renders a pizza-like colour-wheel, with each slice being a unique pre-defined color.
-    See http://helm-engine.org/guide/colors/ -}
+{-| A Flappy bird/ helicopter game clone -}
 module Main where
 
 import FRP.Helm
@@ -41,19 +40,19 @@ update :: (Time,[Bool]) -> GameObject -> GameObject
 update (t,keys) (Character y e a)
     | a == False = Character y e a
     | y > 550 = Character (550) e True
-    | y < 0 = Character (0) e True 
+    | y < 0 = Character (0) e True
     | e > 751 = Character (y+1.5) (750) True
     | e < 0 = Character (y+1.5) (0) True
     | keys!!0 == True = Character (y-3) (e-3) True
     | keys!!1 == True = Character (y+6) (e+1.5) True
     | keys!!0 == False = Character (y+1.5) (e+1.5) True
 
-update (t,keys) (Obstacle x y w) 
+update (t,keys) (Obstacle x y w)
     | x < 0 = Obstacle (800) (obsPositions!!w) (w+1)
     | x >= 0 = Obstacle (x-(fromIntegral w/5)-5) y w
 
 update (t,keys) (TextBox i) = TextBox $ i+1
-    
+
 -- DISPLAY
 
 --need to scale to windows dimensions
@@ -76,7 +75,7 @@ obs x y w = [move (x,y) $ filled red $ rect 25 100]
 runAt c s = let x = lift2 (,) c s
             in lift snd x
 
-getKeys= [(Keys.isDown Keys.SpaceKey), (Keys.isDown Keys.FKey)] 
+getKeys= [(Keys.isDown Keys.SpaceKey), (Keys.isDown Keys.FKey)]
 
 input :: Signal (Time,[Bool])
 input = Time.timestamp $ runAt (Time.fps 60) $ combine getKeys
@@ -86,7 +85,7 @@ input = Time.timestamp $ runAt (Time.fps 60) $ combine getKeys
 main :: IO ()
 main = do
     run config $ render <~ stepper ~~ Window.dimensions
-  
+
   where
     config = defaultConfig { windowTitle = "Helm - Flappy" }
     stepper = foldp step ([bird]++allObs++[score]) input
