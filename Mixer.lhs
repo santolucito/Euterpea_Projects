@@ -66,7 +66,7 @@ Audio
      do
        playSignal 20 sigToPlay
 
-playSignal wants a pure signal,
+playSignal wants a pu re signal,
 need a playImpureSignal
 
 
