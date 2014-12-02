@@ -17,7 +17,7 @@ one after another
 
 STM
 
-> type VolChan = TChan Double
+> type VolChan = TVar Double --TChan Double
 
 GUI
 
@@ -34,12 +34,12 @@ so this is a bad idea
 >    outA -< 1-a
 
 > uisfWriter :: VolChan -> UISF (Double) ()
-> uisfWriter v = liftAIO (\x -> atomically $ writeTChan v x)
+> uisfWriter v = liftAIO (\x -> atomically $ writeTVar v x)
 
 > mixer_board :: VolChan -> UISF () ()
 > mixer_board vc = title "Mixer" $ proc _ -> do
 >    v <- volume_slider -< ()
->   -- _ <- uisfWriter vc -< 1-v
+>    _ <- uisfWriter vc -< v --1-v
 >    returnA -< ()
 
 Audio
@@ -49,9 +49,9 @@ Audio
 
 > -- sfReader :: (Arrow a, Chan b) => Chan b -> (a () b)
 > sfReader :: VolChan -> (AudSF () Double)
-> sfReader v =  arr (\x -> g $ unsafePerformIO $ atomically $ tryReadTChan v)
+> sfReader v =  arr (\x -> unsafePerformIO $ atomically $ readTVar v)
 >  where
->    g Nothing = 0
+>    g Nothing = 0.5
 >    g (Just x) = x
 
  wavloop :: VolChan -> IO ()
@@ -72,13 +72,16 @@ need a playImpureSignal
 
 > main' :: IO ()
 > main' = do
->  v <- newTChanIO
+>  v <- newTVarIO 0.2
 >  setNumCapabilities 2
 >  forkOn 1 $ runMUI' "UI Demo" (mixer_board v)
-> -- forkOn 2 $ outFile "test.wav" 10 $ sfReader v
+>  forkOn 2 $ outFile "test.wav" 500 $ sfReader v
 > -- forkOn 2 $ forever $ (atomically $ isEmptyTChan v) >>= print
 > --forkOn 2 $ wavloop v
->  return ()
+>  return () where
+>     --f v = do
+>     --    outFile "test.wav" 1000 $ sfReader v
+>     --    putStrLn "Done."
 
 
 foo :: [Int] -> Int
