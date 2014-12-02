@@ -10,6 +10,8 @@ one after another
 > import Control.Concurrent
 > import Control.Concurrent.STM
 
+> import Control.Monad
+
 > import Euterpea.Experimental
 > import System.IO.Unsafe
 
@@ -31,13 +33,13 @@ so this is a bad idea
 >    _ <- display -< 1-a
 >    outA -< 1-a
 
-> writeArr :: VolChan -> UISF (Double) ()
-> writeArr v = liftAIO (\x -> atomically $ writeTChan v x)
+> uisfWriter :: VolChan -> UISF (Double) ()
+> uisfWriter v = liftAIO (\x -> atomically $ writeTChan v x)
 
 > mixer_board :: VolChan -> UISF () ()
 > mixer_board vc = title "Mixer" $ proc _ -> do
 >    v <- volume_slider -< ()
->    _ <- writeArr vc -< 1-v
+>   -- _ <- uisfWriter vc -< 1-v
 >    returnA -< ()
 
 Audio
@@ -45,47 +47,37 @@ Audio
 > volume_control :: AudSF (Double, Double) (Double)
 > volume_control = arr (\(s,v) -> (s* v))
 
-> read_volume :: VolChan -> (AudSF () Double)
-> read_volume v =  arr (\x -> unsafePerformIO $ atomically $ peekTChan v)
+> -- sfReader :: (Arrow a, Chan b) => Chan b -> (a () b)
+> sfReader :: VolChan -> (AudSF () Double)
+> sfReader v =  arr (\x -> g $ unsafePerformIO $ atomically $ tryReadTChan v)
+>  where
+>    g Nothing = 0
+>    g (Just x) = x
 
- read_volume :: AudSF VolChan Double
- read_volume =  arr (\v -> unsafePerformIO $ atomically $ peekTChan v)
-
-
-wavSF :: FilePath -> IO (AudSF () Double)
-
-                     inSig <- unsafePerformIO $ wavSFInf "input2.wav" -< ()
-                     withVol <- read_volume v -< ()
-                     appVol <- volume_control -< withVol
-                     returnA -< appVol
-
-> wavloop :: VolChan -> IO ()
-> wavloop v =
->   let sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& read_volume v) >>> volume_control
->   in
->     do
->       playSignal 20 sigToPlay
+ wavloop :: VolChan -> IO ()
+ wavloop v = do
+   foo <- wavSFInf "input2.wav"
+   let sigPlay = (foo &&& sfReader v) >>> volume_control
+   playSignal 20 sigPlay
 
 
- main :: IO ()
- main = do
-  runUI "UI test" mixer_board
-  wavloop
+   let sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& sfReader v) >>> volume_control
+   in
+     do
+       playSignal 20 sigToPlay
 
- kGUI :: Kleisli IO () Double
- kGUI = Kleisli (\x -> do runUI "test" mixer_board)
+playSignal wants a pure signal,
+need a playImpureSignal
 
-    d <- convertToUISF sr 0.1 myAutomaton -< (f1, f2)
-
- kAudio :: Kleisli IO Double ()
- kAudio = Kleisli (\v -> do wavloop v)
 
 > main' :: IO ()
 > main' = do
 >  v <- newTChanIO
 >  setNumCapabilities 2
->  forkOn 1 $ runUI "UI Demo" (mixer_board v)
->  forkOn 2 $ wavloop v
+>  forkOn 1 $ runMUI' "UI Demo" (mixer_board v)
+> -- forkOn 2 $ outFile "test.wav" 10 $ sfReader v
+> -- forkOn 2 $ forever $ (atomically $ isEmptyTChan v) >>= print
+> --forkOn 2 $ wavloop v
 >  return ()
 
 
@@ -104,6 +96,26 @@ use STM to write the UISF value then read in the AudSF thread
       UISF and AudSF
 
 or does kleisli IO replace IO Monad
+
+wavSF :: FilePath -> IO (AudSF () Double)
+
+                     inSig <- unsafePerformIO $ wavSFInf "input2.wav" -< ()
+                     withVol <- read_volume v -< ()
+                     appVol <- volume_control -< withVol
+                     returnA -< appVol
+
+ main :: IO ()
+ main = do
+  runUI "UI test" mixer_board
+  wavloop
+
+ kGUI :: Kleisli IO () Double
+ kGUI = Kleisli (\x -> do runUI "test" mixer_board)
+
+    d <- convertToUISF sr 0.1 myAutomaton -< (f1, f2)
+
+ kAudio :: Kleisli IO Double ()
+ kAudio = Kleisli (\v -> do wavloop v)
 
 an exampke of how to use klieslie
 
