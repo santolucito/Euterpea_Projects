@@ -4,13 +4,13 @@ try and play two samples
 one after another
 
 > module Main where
-> import Euterpea
-> import Euterpea.IO.Audio.PortAudioChannel
+> import Euterpea hiding (MUI)
+> --import Euterpea.IO.Audio.PortAudioChannel
 > import Control.Arrow
 > import Control.Concurrent
 > import Control.Concurrent.STM
 
-> import FRP.UISF.AuxFunctions(liftAIO)
+> import Euterpea.Experimental
 > import System.IO.Unsafe
 
 STM
