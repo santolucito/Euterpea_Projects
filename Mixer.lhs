@@ -10,6 +10,7 @@ one after another
 > import Control.Concurrent
 > import Control.Concurrent.STM
 
+> import FRP.UISF.AuxFunctions(liftAIO)
 > import System.IO.Unsafe
 
 STM
@@ -31,7 +32,7 @@ so this is a bad idea
 >    outA -< 1-a
 
 > writeArr :: VolChan -> UISF (Double) ()
-> writeArr v = arr (\x -> unsafePerformIO $ atomically $ writeTChan v x)
+> writeArr v = liftAIO (\x -> atomically $ writeTChan v x)
 
 > mixer_board :: VolChan -> UISF () ()
 > mixer_board vc = title "Mixer" $ proc _ -> do
