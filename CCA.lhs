@@ -44,14 +44,20 @@ We have three proposals
 
 1 - Make + work on SF
 
-> (~+) :: Num a => AudSF () a -> AudSF () a ->  AudSF () a
-> (~+) sf1 sf2 = proc () -> do
->                 x <- sf1 -< ()
->                 y <- sf2 -< ()
->                 outA -< x + y
+this is a really bad version of just making it an instance
+(~+) :: Num a => AudSF () a -> AudSF () a ->  AudSF () a
+(~+) sf1 sf2 = proc () -> do
+                x <- sf1 -< ()
+                y <- sf2 -< ()
+                outA -< x + y
 
-> instance Num (Signal a) where
+
+> instance Num a => Num (AudSF () a) where
 >  s1 + s2 = proc (s1,s2) -> do
 >                 outA -< s1 + s2
 
 2 - +' :: AudSF(a,a) a
+
+
+ the following typechecks as is :
+w' = f1 x + f2 y
