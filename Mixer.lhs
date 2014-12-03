@@ -15,6 +15,8 @@ one after another
 > import Euterpea.Experimental
 > import System.IO.Unsafe
 
+> import ExperimentalMidi(midiInLoop,midiOutOp)
+
 STM
 
 > type VolChan = TVar Double --TChan Double
@@ -54,17 +56,17 @@ Audio
 >    g Nothing = 0.5
 >    g (Just x) = x
 
- wavloop :: VolChan -> IO ()
- wavloop v = do
-   foo <- wavSFInf "input2.wav"
-   let sigPlay = (foo &&& sfReader v) >>> volume_control
+> wavloop :: VolChan -> IO ()
+> wavloop v =
+>   let
+>    sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& sfReader v) >>> volume_control
+>   in
+>     do
+>       playSignal 20 sigToPlay
+
+ foo <- wavSFInf "input2.wav"
+  let sigPlay = (foo &&& sfReader v) >>> volume_control
    playSignal 20 sigPlay
-
-
-   let sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& sfReader v) >>> volume_control
-   in
-     do
-       playSignal 20 sigToPlay
 
 playSignal wants a pu re signal,
 need a playImpureSignal
@@ -75,13 +77,18 @@ need a playImpureSignal
 >  v <- newTVarIO 0.2
 >  setNumCapabilities 2
 >  forkOn 1 $ runMUI' "UI Demo" (mixer_board v)
->  forkOn 2 $ outFile "test.wav" 500 $ sfReader v
-> -- forkOn 2 $ forever $ (atomically $ isEmptyTChan v) >>= print
-> --forkOn 2 $ wavloop v
->  return () where
->     --f v = do
->     --    outFile "test.wav" 1000 $ sfReader v
->     --    putStrLn "Done."
+>  forkOn 2 $ midiOutOp v
+>  --forkOn 2 $ wavloop v
+>  return ()
+
+
+ forkOn 2 $ outFile "test.wav" 500 $ sfReader v
+ forkOn 2 $ forever $ (atomically $ isEmptyTChan v) >>= print
+
+
+
+
+
 
 
 foo :: [Int] -> Int
