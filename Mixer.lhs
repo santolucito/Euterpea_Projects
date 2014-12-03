@@ -59,7 +59,7 @@ Audio
 > wavloop :: VolChan -> IO ()
 > wavloop v =
 >   let
->    sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& sfReader v) >>> volume_control
+>    sigToPlay = ((unsafePerformIO $ wavSFInf "input.wav") &&& sfReader v) >>> volume_control
 >   in
 >     do
 >       playSignal 20 sigToPlay
@@ -77,8 +77,8 @@ need a playImpureSignal
 >  v <- newTVarIO 0.2
 >  setNumCapabilities 2
 >  forkOn 1 $ runMUI' "UI Demo" (mixer_board v)
->  forkOn 2 $ midiOutOp v
->  --forkOn 2 $ wavloop v
+>  --forkOn 2 $ midiOutOp v
+>  forkOn 2 $ wavloop v
 >  return ()
 
 
