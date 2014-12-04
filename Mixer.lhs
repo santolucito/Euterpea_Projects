@@ -20,6 +20,7 @@ one after another
 STM
 
 > type VolChan = TVar Double --TChan Double
+> type PanChan = TVar (Double,Double)
 > type DevChan = TVar (Int,Int)
 
 GUI
@@ -29,20 +30,29 @@ to fill the buffer until the next tick of the clock (uisf at 60fps, audsf at 44k
 so this is a bad idea
     _ <- convertToUISF 60 60
 
+apparently every uisf widget thing needs a unique title
 
-> volume_slider :: UISF () (Double)
-> volume_slider = proc _ -> do
->    a <- title "volume"  $ vSlider (0,1) 0 -< ()
+> volume_slider :: String -> UISF () (Double)
+> volume_slider t = proc _ -> do
+>    a <- title t $ vSlider (0,1) 0 -< ()
 >    _ <- display -< 1-a
 >    outA -< 1-a
+
+> pan_slider :: UISF () (Double,Double)
+> pan_slider = proc _ -> do
+>    a <- title "pan"  $ hSlider (0,1) 0 -< ()
+>    _ <- display -< (a,1-a)
+>    outA -< (a,1-a)
 
 > uisfWriter :: TVar a -> UISF (a) ()
 > uisfWriter v = liftAIO (\x -> atomically $ writeTVar v x)
 
-> mixer_board :: VolChan -> UISF () ()
-> mixer_board vc = title "Mixer" $ proc _ -> do
->    v <- volume_slider -< ()
->    _ <- uisfWriter vc -< v --1-v
+> mixer_board :: VolChan -> VolChan -> UISF () ()
+> mixer_board vc pc = title "Mixer" $ proc _ -> do
+>    v <- volume_slider "track1" -< ()
+>    _ <- uisfWriter vc -< v
+>    v2 <- volume_slider "track2" -< ()
+>    _ <- uisfWriter pc -< v2
 >    returnA -< ()
 
 mi::Int
@@ -58,51 +68,59 @@ mi::Int
 
 Audio
 
-> volume_control :: AudSF (Double, Double) (Double)
-> volume_control = arr (\(s,v) -> (s* v))
+> toMono :: AudSF (Double, Double) (Double)
+> toMono =  arr (\(l,r) -> (l+r)/2)
+
+> -- volume_control :: AudioSample a => AudSF (a, Double) (a)
+> volume_control :: AudSF ((Double,Double), Double) (Double,Double)
+> volume_control = arr (\((l,r),v) -> (l*v,r*v))
+
+> pan :: AudSF ((Double,Double), (Double,Double)) (Double,Double)
+> pan = arr (\((l,r),(v1,v2)) -> (l*v1,r*v2))
+
+> mix2 :: AudSF ((Double,Double), (Double,Double)) (Double,Double)
+> mix2 = arr (\((l,r),(v1,v2)) -> ((l+v1)/2,(r+v2)/2))
 
 > -- sfReader :: (Arrow a, Chan b) => Chan b -> (a () b)
-> sfReader :: VolChan -> (AudSF () Double)
+> sfReader :: TVar a -> (AudSF () a)
 > sfReader v =  arr (\x -> unsafePerformIO $ atomically $ readTVar v)
->  where
->    g Nothing = 0.5
->    g (Just x) = x
-
- wavloop :: VolChan -> IO ()
- wavloop v =
-   let
-    sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& sfReader v) >>> volume_control
-   in
-     do
-       playSignal 20 sigToPlay
 
 
- foo <- wavSFInf "input2.wav"
-  let sigPlay = (foo &&& sfReader v) >>> volume_control
-   playSignal 20 sigPlay
+> wavloop :: VolChan -> VolChan -> IO ()
+> wavloop v v2 = do
+>   foo <- wavSFStereoInf "in1.wav"
+>   bar <- wavSFStereoInf "in2.wav"
+>   let sigPlay = ((((foo) &&& sfReader v) >>> volume_control) &&&
+>                  (((bar) &&& sfReader v2) >>> volume_control)) >>> mix2 >>> toMono
+>   playSignal 1000 sigPlay
 
-playSignal wants a pu re signal,
-need a playImpureSignal
-
-
-> main' :: IO ()
-> main' = do
+> midi :: IO ()
+> midi = do
 >  devsIn <- inDevices
 >  devsOut <- outDevices
 >  v <- newTVarIO 0.2
 >  s <- newTVarIO False
 >  d <- newTVarIO (0,0)
 >  setNumCapabilities 2
->  --forkOn 1 $ runMUI' "UI Demo" (mixer_board v)
 >  forkOn 1 $ runMUI(300, 300) "HaskellOx" (haskellOx devsIn devsOut d)
->  --forkOn 2 $ forever $ (atomically $ readTVar d) >>= print
 >  forkOn 2 $ midiInLoop s d
->  --forkOn 2 $ wavloop v
 >  return ()
+
+> wav :: IO ()
+> wav = do
+>  v <- newTVarIO 0.2
+>  v2 <- newTVarIO 0.2
+>  p <- newTVarIO (1,1)
+>  setNumCapabilities 2
+>  forkOn 1 $ runMUI' "wav Mixer" (mixer_board v v2)
+>  forkOn 2 $ wavloop v v2
+>  return ()
+
 
 
  forkOn 2 $ outFile "test.wav" 500 $ sfReader v
  forkOn 2 $ forever $ (atomically $ isEmptyTChan v) >>= print
+ forkOn 2 $ forever $ (atomically $ readTVar d) >>= print
 
 
 
