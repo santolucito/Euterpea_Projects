@@ -15,11 +15,12 @@ one after another
 > import Euterpea.Experimental
 > import System.IO.Unsafe
 
-> import ExperimentalMidi(midiInLoop,midiOutOp)
+> import ExperimentalMidi
 
 STM
 
 > type VolChan = TVar Double --TChan Double
+> type DevChan = TVar (Int,Int)
 
 GUI
 
@@ -35,7 +36,7 @@ so this is a bad idea
 >    _ <- display -< 1-a
 >    outA -< 1-a
 
-> uisfWriter :: VolChan -> UISF (Double) ()
+> uisfWriter :: TVar a -> UISF (a) ()
 > uisfWriter v = liftAIO (\x -> atomically $ writeTVar v x)
 
 > mixer_board :: VolChan -> UISF () ()
@@ -43,6 +44,17 @@ so this is a bad idea
 >    v <- volume_slider -< ()
 >    _ <- uisfWriter vc -< v --1-v
 >    returnA -< ()
+
+mi::Int
+
+> --haskellOx :: (DevChan -> UISF () ()
+> haskellOx devsIn devsOut devChan = proc _ -> do
+>   rIn <- title "Input" $ radio (map snd devsIn) 0 -< ()
+>   rOut <- title "Output" $ radio (map snd devsOut) 0 -< ()
+>   let inVal = map fst devsIn !! rIn
+>       outVal = map fst devsOut !! rOut
+>   _  <- uisfWriter devChan -< (inVal, outVal)
+>   returnA -< ()
 
 Audio
 
@@ -56,13 +68,14 @@ Audio
 >    g Nothing = 0.5
 >    g (Just x) = x
 
-> wavloop :: VolChan -> IO ()
-> wavloop v =
->   let
->    sigToPlay = ((unsafePerformIO $ wavSFInf "input.wav") &&& sfReader v) >>> volume_control
->   in
->     do
->       playSignal 20 sigToPlay
+ wavloop :: VolChan -> IO ()
+ wavloop v =
+   let
+    sigToPlay = ((unsafePerformIO $ wavSFInf "input2.wav") &&& sfReader v) >>> volume_control
+   in
+     do
+       playSignal 20 sigToPlay
+
 
  foo <- wavSFInf "input2.wav"
   let sigPlay = (foo &&& sfReader v) >>> volume_control
@@ -74,11 +87,17 @@ need a playImpureSignal
 
 > main' :: IO ()
 > main' = do
+>  devsIn <- inDevices
+>  devsOut <- outDevices
 >  v <- newTVarIO 0.2
+>  s <- newTVarIO False
+>  d <- newTVarIO (0,0)
 >  setNumCapabilities 2
->  forkOn 1 $ runMUI' "UI Demo" (mixer_board v)
->  --forkOn 2 $ midiOutOp v
->  forkOn 2 $ wavloop v
+>  --forkOn 1 $ runMUI' "UI Demo" (mixer_board v)
+>  forkOn 1 $ runMUI(300, 300) "HaskellOx" (haskellOx devsIn devsOut d)
+>  --forkOn 2 $ forever $ (atomically $ readTVar d) >>= print
+>  forkOn 2 $ midiInLoop s d
+>  --forkOn 2 $ wavloop v
 >  return ()
 
 
