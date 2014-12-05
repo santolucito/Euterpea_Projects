@@ -1,18 +1,12 @@
 > {-# LANGUAGE Arrows #-}
-
-try and play two samples
-one after another
-
 > module Main where
-> import Euterpea hiding (MUI)
-> --import Euterpea.IO.Audio.PortAudioChannel
+> import Euterpea
+> import Euterpea.Experimental
+
 > import Control.Arrow
 > import Control.Concurrent
 > import Control.Concurrent.STM
-
 > import Control.Monad
-
-> import Euterpea.Experimental
 > import System.IO.Unsafe
 
 > import ExperimentalMidi
@@ -48,7 +42,7 @@ apparently every uisf widget thing needs a unique title
 > uisfWriter v = liftAIO (\x -> atomically $ writeTVar v x)
 
 > mixer_board :: VolChan -> VolChan -> UISF () ()
-> mixer_board vc pc = title "Mixer" $ proc _ -> do
+> mixer_board vc pc = title "Mixer" $ leftRight $ proc _ -> do
 >    v <- volume_slider "track1" -< ()
 >    _ <- uisfWriter vc -< v
 >    v2 <- volume_slider "track2" -< ()
@@ -102,7 +96,7 @@ Audio
 >  s <- newTVarIO False
 >  d <- newTVarIO (0,0)
 >  setNumCapabilities 2
->  forkOn 1 $ runMUI(300, 300) "HaskellOx" (haskellOx devsIn devsOut d)
+>  forkOn 1 $ runMUI (defaultMUIParams {uiSize=(300,300), uiTitle="HaskellOx"}) (haskellOx devsIn devsOut d)
 >  forkOn 2 $ midiInLoop s d
 >  return ()
 
@@ -112,7 +106,7 @@ Audio
 >  v2 <- newTVarIO 0.2
 >  p <- newTVarIO (1,1)
 >  setNumCapabilities 2
->  forkOn 1 $ runMUI' "wav Mixer" (mixer_board v v2)
+>  forkOn 1 $  runMUI (defaultMUIParams {uiSize=(300,300), uiTitle="Instrument Demo"}) (mixer_board v v2)
 >  forkOn 2 $ wavloop v v2
 >  return ()
 
