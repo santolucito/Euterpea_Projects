@@ -40,23 +40,40 @@ z' = proc () -> do
 
 But to do that we need to define what (arr1 -< x) is and how + operates on it
 
-We have three proposals
+we could use this to pass any arbitrary function to combine two arrows
+very extensible, but doesnt look so nice,
+also shouldnt need to pair up the input
 
-1 - Make + work on SF
+> combine :: (b -> d -> e) -> AudSF a b -> AudSF c d ->  AudSF (a,c) e
+> combine f sf1 sf2 = proc (a,c) -> do
+>     sf1Val <- sf1 -< a
+>     sf2Val <- sf2 -< c
+>     returnA -< f sf1Val sf2Val
 
-this is a really bad version of just making it an instance
-(~+) :: Num a => AudSF () a -> AudSF () a ->  AudSF () a
-(~+) sf1 sf2 = proc () -> do
-                x <- sf1 -< ()
-                y <- sf2 -< ()
-                outA -< x + y
+> z' :: AudSF () Double
+> z' =
+>   let
+>       w = combine (+) arr1 arr2
+>       v = combine (*) w arr1
+>   in
+>     proc () -> do
+>      let x = 0.1
+>          y = 0.1
+>      o <- v -< ((x,y),y)
+>      outA -< o
 
+or more elegantly, make it an instance of whatever we want
+im not sure this lets us use our own functions tho, maybe it does actually
+can we do something like
+f :: AudSF () a -> AudSF () a -> AudSF () a
+f = +
 
-> instance Num a => Num (AudSF () a) where
->  s1 + s2 = proc (s1,s2) -> do
->                 outA -< s1 + s2
+instance Num a => Num (AudSF () a) where
+ sf1 + sf2 = proc () -> do
+      x <- sf1 -< ()
+      y <- sf2 -< ()
+      outA -< x + y
 
-2 - +' :: AudSF(a,a) a
 
 
  the following typechecks as is :
