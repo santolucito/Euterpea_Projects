@@ -17,6 +17,27 @@ STM
 > type PanChan = TVar (Double,Double)
 > type DevChan = TVar (Int,Int)
 
+ type XArrData = TVar {volume :: Double,
+                       pan :: Double,
+                       exit :: Bool}
+                       
+defaultXData = {volume=1,
+                pan=0.5,
+                exit=False}
+
+in the top block (IO)
+do
+  xData <- newTVarIO defaultXData
+  forkOn 1 $ runMUI (defaultMUIParams) (mixer_board xData)
+  forkOn 2 $ wavloop xData
+  
+in lower block #1 (usif)
+v <- volume_slider "track1" -< ()
+ _ <- uisfWriter xData.volume -< v
+
+in lower block #2 (audio)
+ v <- audReader xData.volume -< ()
+ 
 GUI
 
 the problem with convertToUISF is that then you ahve to write enough samples
