@@ -55,7 +55,7 @@ update (t,keys) (Obstacle x y w)
 
 update (t,keys) (TextBox i) = TextBox $ i+1
 
-update (t,keys) (VolChan v) =
+update (t,keys) (VolChan v) 
     | keys!!0 == True = VolChan v (unsafePerformIO $ atomically $ writeTVar v 0)
     | keys!!1 == True = VolChan v (unsafePerformIO $ atomically $ writeTVar v 1)
     | keys!!0 == False =  VolChan v (unsafePerformIO $ atomically $ writeTVar v 1)
