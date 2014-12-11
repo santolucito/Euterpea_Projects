@@ -9,6 +9,10 @@ import qualified FRP.Helm.Window as Window
 import qualified FRP.Helm.Keyboard as Keys
 import qualified FRP.Helm.Sample as S
 
+import Control.Concurrent
+import Control.Concurrent.STM
+import System.IO.Unsafe
+
 import Data.List
 -- MODEL
 data GameObject =  Character { y :: Double,
@@ -18,8 +22,8 @@ data GameObject =  Character { y :: Double,
                               y :: Double,
                               which :: Int}
                  | TextBox { i :: Int}
-                 | VolChan { c :: TVar Double,
-                             i :: ()}--should be an IO to execute somewhere else
+    --             | VolChan { c :: TVar Double,
+    --                         io :: ()}--should be an IO to execute somewhere else
 
 bird = Character 300 750 True
 
@@ -55,10 +59,10 @@ update (t,keys) (Obstacle x y w)
 
 update (t,keys) (TextBox i) = TextBox $ i+1
 
-update (t,keys) (VolChan v) 
-    | keys!!0 == True = VolChan v (unsafePerformIO $ atomically $ writeTVar v 0)
-    | keys!!1 == True = VolChan v (unsafePerformIO $ atomically $ writeTVar v 1)
-    | keys!!0 == False =  VolChan v (unsafePerformIO $ atomically $ writeTVar v 1)
+--update (t,keys) (VolChan v ()) 
+--    | keys!!0 == True = VolChan v (unsafePerformIO $ atomically $ writeTVar v 0)
+--    | keys!!1 == True = VolChan v (unsafePerformIO $ atomically $ writeTVar v 1)
+--    | keys!!0 == False =  VolChan v (unsafePerformIO $ atomically $ writeTVar v 1)
 
 -- DISPLAY
 
@@ -70,6 +74,7 @@ my_collage :: GameObject -> [Form]
 my_collage (Character y e a) = (healthBar e) ++ (player y)
 my_collage (Obstacle x y w) = obs x y w
 my_collage (TextBox i) = [move (300,9) $ toForm $ Text.text $ Text.color white $ Text.toText $ "Score: "++show i]
+--my_collage (VolChan _ _) =  []
 
 healthBar :: Double -> [Form]
 healthBar e = [rect ((*2) $ e) 35 |> filled green]
@@ -95,4 +100,18 @@ flap v = do
 
   where
     config = defaultConfig { windowTitle = "Helm - Flappy" }
-    stepper = foldp step ([bird]++allObs++[score]++(VolChan v)) input
+    stepper = foldp step ([bird]++allObs++[score]) input
+    --stepper = foldp step ([bird]++allObs++[score]++[VolChan v ()]) input
+
+flap' :: IO ()
+flap' = do
+    run config $ render <~ stepper ~~ Window.dimensions
+
+  where
+    config = defaultConfig { windowTitle = "Helm - Flappy" }
+    stepper = foldp step ([bird]++allObs++[score]) input
+
+main :: IO()
+main = do 
+   v <- newTVarIO 0.2
+   flap v
