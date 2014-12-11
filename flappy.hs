@@ -1,6 +1,6 @@
 
 {-| A Flappy bird/ helicopter game clone -}
-module Main where
+module Flappy where
 
 import FRP.Helm
 import qualified FRP.Helm.Time as Time
@@ -18,6 +18,8 @@ data GameObject =  Character { y :: Double,
                               y :: Double,
                               which :: Int}
                  | TextBox { i :: Int}
+                 | VolChan { c :: TVar Double,
+                             i :: ()}--should be an IO to execute somewhere else
 
 bird = Character 300 750 True
 
@@ -53,6 +55,11 @@ update (t,keys) (Obstacle x y w)
 
 update (t,keys) (TextBox i) = TextBox $ i+1
 
+update (t,keys) (VolChan v) =
+    | keys!!0 == True = VolChan v (unsafePerformIO $ atomically $ writeTVar v 0)
+    | keys!!1 == True = VolChan v (unsafePerformIO $ atomically $ writeTVar v 1)
+    | keys!!0 == False =  VolChan v (unsafePerformIO $ atomically $ writeTVar v 1)
+
 -- DISPLAY
 
 --need to scale to windows dimensions
@@ -82,10 +89,10 @@ input = Time.timestamp $ runAt (Time.fps 60) $ combine getKeys
 
 
 {-| Bootstrap the game. -}
-main :: IO ()
-main = do
+flap :: TVar Double -> IO ()
+flap v = do
     run config $ render <~ stepper ~~ Window.dimensions
 
   where
     config = defaultConfig { windowTitle = "Helm - Flappy" }
-    stepper = foldp step ([bird]++allObs++[score]) input
+    stepper = foldp step ([bird]++allObs++[score]++(VolChan v)) input
