@@ -31,9 +31,9 @@ exp = proc () -> do
   returnA -< e
 
 integral :: ArrowInit a => a Double Double
-integral = proc x -> do
-  rec let i' = i + x * dt
-      i <- init 0 -< i'
+integral = proc e -> do
+  rec let i' = i + e * dt
+      i <- init 0 -< i' --init is id when t !=0
   returnA -< i
 
 --exp with nonArrow
@@ -42,7 +42,7 @@ exp' :: Double -> Double
 exp' x = 1 + integral' dt
 
 integral' :: Double -> Double
-integral' x = undefined 
+integral' x = undefined
 
 
 
@@ -54,7 +54,7 @@ integral' x = undefined
 sine :: ArrowInit a => Double -> a () Double
 sine freq = proc _ -> do
   rec x <- init i -< r
-      y <- init 0 -< x 
+      y <- init 0 -< x
       let r = c * x - y
   returnA -< r
   where
