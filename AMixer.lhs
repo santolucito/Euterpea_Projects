@@ -13,7 +13,7 @@
 --------------------------------------------
 here is the code I want the user to write
 
-> f1 :: XData -> (XData,IO ())
+> f1 :: XData -> XData
 > f1 read = (read, do return ())
 
 > f2 :: XData -> XData
@@ -49,7 +49,7 @@ mapM_ f is equivalent to sequence_ . map f.
 > runP ps = do
 >    x <- newTVarIO $ xDataDefaults
 >    setNumCapabilities (length ps)
->    mapM_ (\p -> forkOn (fst p) $ (func $ snd $ snd p) $ (func $ snd $ fst p) x) (zip [1..] ps)
+>    mapM_ (\p -> forkOn (fst p) $ (func $ snd p) x) (zip [1..] ps)
 >    return ()
 >    where
 >       xDataDefaults = XData 1 0.5 False
@@ -60,8 +60,9 @@ mapM_ f is equivalent to sequence_ . map f.
 >                pan' :: Double,
 >                exit :: Bool}
 
+func will likely be a FRP functions, running continously
 
-> data Process = Process { func :: XData -> (XData, IO())
+> data Process = Process { func :: XData -> XData
 >                         }
 
 
@@ -92,8 +93,8 @@ mapM_ f is equivalent to sequence_ . map f.
 > mixer_board :: VolChan -> VolChan -> UISF () ()
 > mixer_board vc pc = title "Mixer" $ leftRight $ proc _ -> do
 >    v <- volume_slider "track1" -< ()
->    _ <- uisfWriter vc -< v
 >    v2 <- volume_slider "track2" -< ()
+>    _ <- uisfWriter vc -< v
 >    _ <- uisfWriter pc -< v2
 >    returnA -< ()
 
