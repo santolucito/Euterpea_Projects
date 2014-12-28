@@ -130,10 +130,10 @@ testcase list = do
 main = do
   let n = 1000000
   putStrLn "Compare exp singal function"
-  testcase [nth n S.exp, nth n exp, expNorm n, expOpt n, S.nth_FRP (fromIntegral n) 0 0 S.exp']
-  {-putStrLn "Compare sine singal function"
-  testcase [nth n (S.sine 2), nth n (sine 2), sineNorm n, sineOpt n]
-  putStrLn "Compare oscSine singal function"
+  testcase [nth n S.exp, nth n exp, expNorm n, expOpt n, last $ take n S.exp']
+  putStrLn "Compare sine singal function"
+  testcase [nth n (S.sine 2), nth n (sine 2), sineNorm n, sineOpt n, last $ take n $ S.sineL 2]
+  {-putStrLn "Compare oscSine singal function"
   testcase [nth n (S.testOsc S.oscSine), nth n (testOsc oscSine), oscNorm n, oscOpt n]
   putStrLn "Compare sciFi singal function"
   testcase [nth n S.sciFi, nth n sciFi, sciFiNorm n, sciFiOpt n]

@@ -6,6 +6,8 @@ import Control.Arrow
 import Control.CCA.Types
 import Prelude hiding (init, exp)
 
+import qualified Data.List.Stream as S
+      
 
 --this was taken from Paul Liu from his CCA paper
 --http://code.haskell.org/CCA/test/
@@ -45,14 +47,24 @@ nth_FRP n t i f =
   in
     if t == n then (fst x) else nth_FRP n (t+1) (snd x) f
 
+exp' :: [Double]
+exp' = 
+  let i = 0: i'
+      e = S.map (+1) i
+      i' = S.zipWith (\x y -> x+y*dt) i e
+  in
+      e
+
+
+
+
+{-
 exp' :: Double -> (Double,Double)
 exp' i = 
   let e = 1+i
       i'= i+e*dt
   in
       (e,i')
-{-
-
 
 --gives you a different value than arrows with dt !=1
 --also is really slow, probably using an integral is a 
@@ -88,6 +100,19 @@ sine freq = proc _ -> do
     omh = 2 * pi / (fromIntegral sr) * freq
     i = sin omh
     c = 2 * cos omh
+
+sineL :: Double -> [Double ]
+sineL freq =
+  let omh = 2 * pi * freq * dt
+      d = sin omh
+      c = 2 * cos omh
+      r = zipWith (\d2 d1 -> c * d2 - d1 ) d2 d1
+      d1 = delay 0 d2
+      d2 = delay d r
+  in r
+delay = (:)
+
+
 
 oscSine :: ArrowInit a => Double -> a Double Double
 oscSine f0 = proc cv -> do
