@@ -11,22 +11,7 @@
 
 
 --------------------------------------------
-here is the code I want the user to write
-
-> f1 :: XData -> XData
-> f1 read = (read, do return ())
-
-> f2 :: XData -> XData
-> f2 read = read
-
-> main :: IO()
-> main = do
->   let p1 = Process f1
->       p2 = Process f2
->   runP [p1,p2]
-
---------------------------------------------
-here is the translated version of the above code 
+here is the translated version of the below code
 
 
  main' :: IO ()
@@ -37,36 +22,53 @@ here is the translated version of the above code
   forkOn 2 $ wavloop x
   return ()
 
-
-
 --------------------------------------------
-here is the code to do the translation
+here is the code I want the user to write
 
-mapM_ :: Monad m => (a -> m b) -> [a] -> m ()
-mapM_ f is equivalent to sequence_ . map f.
+> f1 :: XData -> XData
+> f1 i = XData (volume i) (pan' i) True
+
+> f2 :: XData -> XData
+> f2 i = XData (volume i) (pan' i) False
+
+> main :: IO()
+> main = do
+>   let p1 = Process f1 1
+>       p2 = Process f2 2
+>   runP [p1,p2]
+
+--------------------- -----------------------
+here is the code to do the translation
 
 > runP :: [Process] -> IO()
 > runP ps = do
 >    x <- newTVarIO $ xDataDefaults
 >    setNumCapabilities (length ps)
->    mapM_ (\p -> forkOn (fst p) $ (func $ snd p) x) (zip [1..] ps)
+>    mapM_ (\p -> forkOn (core p) $ foo x p) ps
 >    return ()
 >    where
 >       xDataDefaults = XData 1 0.5 False
+>       foo x p = writeT x ((func p) $ readT x)
 
-
+> readT :: TVar XData -> XData
+> readT x = unsafePerformIO $ atomically $ readTVar x
+> writeT :: TVar XData -> XData -> IO()
+> writeT x v = atomically $ writeTVar x v
 
 > data XData = XData {volume :: Double,
 >                pan' :: Double,
 >                exit :: Bool}
 
-func will likely be a FRP functions, running continously
+> data Process = Process { func :: XData -> XData,
+>                          core :: Int}
 
-> data Process = Process { func :: XData -> XData
->                         }
+TVars are safe and slow
 
-
-
+mapM_ :: Monad m => (a -> m b) -> [a] -> m ()
+mapM_ f is equivalent to sequence_ . map f.
+sequence_ :: Monad m => [m a] -> m ()
+sequence_ =
+    Evaluate each action in the sequence from left to right, and ignore the results.
 
 
 
