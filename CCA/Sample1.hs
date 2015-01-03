@@ -40,14 +40,27 @@ integral = proc e -> do
   returnA -< i
 
 --exp with nonArrow
---          n          t       i (acc)         f
-nth_FRP :: Double -> Double -> Double -> (Double -> (a,Double)) -> a
-nth_FRP n t i f =
+--a is a value, b is a state
+--running at same as fast tuple arrow
+nth_FRP :: Int -> (b, (b -> (a,b))) -> a
+nth_FRP n (i,f) = aux n i
+  where
+    aux n i = x `seq` if n == 0 then x else aux (n-1) i'
+      where (x, i') = f i
+
+--my old version
+--running at ~90x
+{-nth_FRP :: Double -> (Double -> (a,Double)) -> a
+nth_FRP n f = nth_FRP' n 0 0 f
+
+nth_FRP' :: Double -> Double -> Double -> (Double -> (a,Double)) -> a
+nth_FRP' n t i f =
   let x = f $! i
   in
-    if t == n then (fst x) else nth_FRP n (t+1) (snd x) f
+    if t == n then (fst x) else nth_FRP' n (t+1) (snd x) f
+-}
 
---41x
+
 exp' :: Double -> (Double,Double)
 exp' i =
   let e = 1+i
@@ -56,11 +69,9 @@ exp' i =
       (e,i')
 
 
-
-{-4.5x
-
-last $ take n S.exp'
-
+{-
+--4.5x
+--last $ take n S.exp'
 exp' :: [Double]
 exp' =
   let i = 0: i'
