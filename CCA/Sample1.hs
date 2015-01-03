@@ -7,7 +7,7 @@ import Control.CCA.Types
 import Prelude hiding (init, exp)
 
 import qualified Data.List.Stream as S
-      
+
 
 --this was taken from Paul Liu from his CCA paper
 --http://code.haskell.org/CCA/test/
@@ -47,27 +47,35 @@ nth_FRP n t i f =
   in
     if t == n then (fst x) else nth_FRP n (t+1) (snd x) f
 
-exp' :: [Double]
-exp' = 
-  let i = 0: i'
-      e = S.map (+1) i
-      i' = S.zipWith (\x y -> x+y*dt) i e
-  in
-      e
-
-
-
-
-{-
+--41x
 exp' :: Double -> (Double,Double)
-exp' i = 
+exp' i =
   let e = 1+i
       i'= i+e*dt
   in
       (e,i')
 
+
+
+{-4.5x
+
+last $ take n S.exp'
+
+exp' :: [Double]
+exp' =
+  let i = 0: i'
+      e = S.map (+1) i
+      i' = S.zipWith (\x y -> x+y*dt) i e
+  in
+      e
+-}
+
+
+
+{-
+
 --gives you a different value than arrows with dt !=1
---also is really slow, probably using an integral is a 
+--also is really slow, probably using an integral is a
 --faster way to do ** than calculating ** from scratch everytime
 --with the integral, you already ahve most of the computation done
 nth_FRP n t f = (f t) `seq` if t == n then f t else nth_FRP n (t+1) f
@@ -78,11 +86,11 @@ exp'' :: Double -> (Double,Double)
 exp'' t = (t+1,2**(t*dt))
 
 exp' :: (Double,Double)
-exp' = 
+exp' =
    let
      x = (2**(t*dt),t+1)
      t = snd x
-   in 
+   in
      x
 -}
 

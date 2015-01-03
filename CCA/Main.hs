@@ -16,7 +16,7 @@ import Control.CCA.Types
 import System.IO
 import System.CPUTime
 
-import Sample 
+import Sample
 import qualified Sample1 as S
 
 newtype SF a b = SF { runSF :: (a -> (b, SF a b)) }
@@ -38,7 +38,7 @@ instance Arrow SF where
 #if __GLASGOW_HASKELL__ < 610
   f >>> g = SF (h f g)
     where
-      h f g x = 
+      h f g x =
         let (y, f') = runSF f x
             (z, g') = runSF g y
         in (z, SF (h f' g'))
@@ -55,13 +55,13 @@ instance Arrow SF where
     where
       h f g x =
         let (y, f') = runSF f x
-            (z, g') = runSF g x 
+            (z, g') = runSF g x
         in ((y, z), SF (h f' g'))
   f *** g = SF (h f g)
     where
       h f g x =
         let (y, f') = runSF f (fst x)
-            (z, g') = runSF g (snd x) 
+            (z, g') = runSF g (snd x)
         in ((y, z), SF (h f' g'))
 
 instance ArrowLoop SF where
@@ -73,15 +73,15 @@ instance ArrowLoop SF where
 instance ArrowInit SF where
   init i = SF (f i)
     where f i x = (i, SF (f x))
-  loopD i g = SF (f i) 
+  loopD i g = SF (f i)
     where
-      f i x = 
+      f i x =
         let (y, i') = g (x, i)
         in (y, SF (f i'))
 
 run :: SF a b -> [a] -> [b]
 run (SF f) (x:xs) =
-  let (y, f') = f x 
+  let (y, f') = f x
   in y `seq` (y : run f' xs)
 
 unfold :: SF () a -> [a]
@@ -92,18 +92,18 @@ unfold = flip run inp
 --nth_FRP :: Double -> Double -> (Double -> (Double,a)) -> a
 --nth_FRP = in Sample1.hs
 
---to test the arrow version 
+--to test the arrow version
 nth :: Int -> SF () a -> a
 nth n (SF f) = x `seq` if n == 0 then x else nth (n - 1) f'
   where (x, f') = f ()
 
---to test the arrow tuple thing version 
+--to test the arrow tuple thing version
 nth' :: Int -> (b, ((), b) -> (a, b)) -> a
 nth' n (i, f) = aux n i
   where
     aux n i = x `seq` if n == 0 then x else aux (n-1) i'
       where (x, i') = f ((), i)
- 
+
 timer i = do t0 <- getCPUTime
              i `seq` (do
                t1 <- getCPUTime
@@ -113,11 +113,11 @@ timer i = do t0 <- getCPUTime
 
 gnuplot f l = do
       h <- openFile f WriteMode
-      mapM_ (\(x, y) -> hPutStrLn h (show x ++ "\t" ++ show y)) 
+      mapM_ (\(x, y) -> hPutStrLn h (show x ++ "\t" ++ show y))
             (zip [0, dt..] l)
       hClose h
 
-plot3sec fn = gnuplot fn . take (sr * 3) . unfold 
+plot3sec fn = gnuplot fn . take (sr * 3) . unfold
 
 testcase list = do
   ts <- mapM timer list
@@ -130,7 +130,7 @@ testcase list = do
 main = do
   let n = 1000000
   putStrLn "Compare exp singal function"
-  testcase [nth n S.exp, nth n exp, expNorm n, expOpt n, last $ take n S.exp']
+  testcase [nth n S.exp, nth n exp, expNorm n, expOpt n, S.nth_FRP (fromIntegral n) 0 0 S.exp']
   putStrLn "Compare sine singal function"
   testcase [nth n (S.sine 2), nth n (sine 2), sineNorm n, sineOpt n, last $ take n $ S.sineL 2]
   {-putStrLn "Compare oscSine singal function"
@@ -148,12 +148,10 @@ sineNorm n = nth n $(norm $ sine 2)
 sineOpt n = nth' n $(normOpt $ sine 2)
 
 oscNorm n = nth n $(norm $ testOsc oscSine)
-oscOpt n = nth' n $(normOpt $ testOsc oscSine) 
+oscOpt n = nth' n $(normOpt $ testOsc oscSine)
 
 sciFiNorm n = nth n $(norm sciFi)
 sciFiOpt n = nth' n $(normOpt sciFi)
 
 robotNorm n = nth n $(norm $ testRobot robot)
 robotOpt n = nth' n $(normOpt $ testRobot robot)
-
-
