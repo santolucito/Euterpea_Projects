@@ -24,6 +24,20 @@ here is the translated version of the below code
 
 --------------------------------------------
 here is the code I want the user to write
+they can use their favorite FRP lib
+
+Give me a hook into your update function (THAT IS UPDATABLE) by use a wrapper function
+update :: a -> b
+and i will rearrange things to use XData
+
+updateTransform :: (a -> b) -> ((a, tvARS XData) -> (b, XData))
+updateTransform u =
+  let
+    output = u (a, readT x)
+  in
+    writeT x $ snd output
+    return fst output
+
 
 > f1 :: XData -> XData
 > f1 i = XData (volume i) (pan' i) True
