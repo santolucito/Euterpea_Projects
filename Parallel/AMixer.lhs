@@ -30,7 +30,7 @@ Give me a hook into your update function (THAT IS UPDATABLE) by use a wrapper fu
 update :: a -> b
 and i will rearrange things to use XData
 
-updateTransform :: (a -> b) -> ((a, tvARS XData) -> (b, XData))
+updateTransform :: (a -> b) -> ((a, TVar XData) -> (b, TVar XData))
 updateTransform u =
   let
     output = u (a, readT x)
