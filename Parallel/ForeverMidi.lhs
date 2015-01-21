@@ -9,14 +9,13 @@
 > import Control.Concurrent.STM
 > import System.IO.Unsafe
 > import Control.Concurrent
-> import Control.Applicative
 > import FRP.UISF.AuxFunctions
 
 > import Breakout
 
 > main :: IO ()
 > main = do
->  v <- newTVarIO 0.0
+>  v <- atomically $ newTVar 0.0
 >  setNumCapabilities 2
 >  forkOn 1 $ game v
 >  forkOn 2 $ breakSound v
@@ -29,20 +28,19 @@ sound
 > readT x = unsafePerformIO $ atomically $ readTVar x
 
 > breakSound :: TVar Double -> IO()
-> breakSound v = do
->   bar <- foo v
->   play' $ line $ bar
+> breakSound v = play' $ line $ foo v
 
 this works because of lazy eval
 we won't calculate the music value until we need to actually play it
 hence we have realtime composition
 For some reason, using a rest breaks make it stop playing after playing one rest
 
-> foo :: TVar Double -> IO([Music Pitch])
-> foo v = do
->    s <- atomically $ readTVar v
->    let m = if s>0 then (e 4 (1/8)) else (c 4 (1/8))
->    return (m :) <*> foo v
+> foo :: TVar Double -> [Music Pitch]
+> foo v | s > 0.3 = (e 4 (1/8)) : foo v
+>       | s > -0.3 = (d 4 (1/8)) : foo v
+>       | otherwise  = (c 4 (1/8)) : foo v
+>    where
+>       s = readT v
 
 ---------
 visual
