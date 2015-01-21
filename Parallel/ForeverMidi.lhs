@@ -12,14 +12,9 @@
 > import FRP.UISF.AuxFunctions
 
 
- import Breakout
-
-
-
-
 > main :: IO ()
 > main = do
->  v <- newTVarIO True
+>  v <- newTVarIO 1.0
 >  setNumCapabilities 2
 >  forkOn 1 $ game v
 >  forkOn 2 $ breakSound v
@@ -31,12 +26,19 @@ sounds
 > readT :: TVar a -> a
 > readT x = unsafePerformIO $ atomically $ readTVar x
 
-> breakSound :: TVar Bool -> IO()
+> breakSound :: TVar Double -> IO()
 > breakSound v = play' $ line $ foo v
 
-> foo :: TVar Bool -> [Music Pitch]
-> foo v = if readT v then (c 4 (1/2)) : foo v
->                    else (d 4 (1/2)) : foo v
+this works because of lazy eval
+we won't calculate the music value until we need to actually play it
+hence we have realtime composition
+
+> foo :: TVar Double -> [Music Pitch]
+> foo v | s > 0.7 = (e 4 (1/8)) : foo v
+>       | s > 0.3 = (d 4 (1/8)) : foo v
+>       | s >= 0   = (c 4 (1/8)) : foo v
+>    where
+>       s = readT v
 
 ---------
 visual
@@ -50,10 +52,10 @@ visual
 >    _ <- display -< 1-a
 >    outA -< 1-a
 
-> uisfWriter :: TVar Bool -> UISF (Double) ()
-> uisfWriter v = liftAIO (\x -> atomically $ writeTVar v (if x>0.5 then True else False))
+> uisfWriter :: TVar Double -> UISF (Double) ()
+> uisfWriter v = liftAIO (\x -> atomically $ writeTVar v x)
 
-> mixer_board :: TVar Bool -> UISF () ()
+> mixer_board :: TVar Double -> UISF () ()
 > mixer_board vc = title "Mixer" $ leftRight $ proc _ -> do
 >    v <- volume_slider "track1" -< ()
 >    _ <- uisfWriter vc -< v
