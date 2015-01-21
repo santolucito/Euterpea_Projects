@@ -316,8 +316,8 @@ into an IO action that displays this snapshot on the screen.  The
 >   atomically $ writeTVar v 0.0
 >   forM_ bricks $ \(x,y,s) -> do
 >     case s of
->       Live    -> return ()
->       Dying a -> atomically $ writeTVar v (fromRational $ toRational a)
+>       Dying 1 -> atomically $ writeTVar v (fromRational $ toRational 1.0)
+>       _ -> return ()
 >
 >   color $ Color4 1 1 1 (0.6 :: GLfloat)
 >   drawEllipse ballX ballY ballW ballH 20
