@@ -35,10 +35,9 @@ we won't calculate the music value until we need to actually play it
 hence we have realtime composition
 For some reason, using a rest breaks make it stop playing after playing one rest
 
-> foo :: TVar Double -> [Music Pitch]
-> foo v | s > 0.3 = (e 4 (1/8)) : foo v
->       | s > -0.3 = (d 4 (1/8)) : foo v
->       | otherwise  = (c 4 (1/8)) : foo v
+> foo :: TVar Double -> [Music (Pitch, Volume)]
+> foo v | s => 0.99 = (addVolume 127 (e 5 (1/4)) ) : foo v
+>       | otherwise  = (addVolume 0 (c 4 (1/100)) ) : foo v
 >    where
 >       s = readT v
 

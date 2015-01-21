@@ -313,13 +313,19 @@ into an IO action that displays this snapshot on the screen.  The
 >       Dying a -> color $ Color4 0.9 0.9 0.2 a
 >     drawRect x y brickW brickH
 >
+>   atomically $ writeTVar v 0.0
+>   forM_ bricks $ \(x,y,s) -> do
+>     case s of
+>       Live    -> return ()
+>       Dying a -> atomically $ writeTVar v (fromRational $ toRational a)
+>
 >   color $ Color4 1 1 1 (0.6 :: GLfloat)
 >   drawEllipse ballX ballY ballW ballH 20
 >
 >   color $ Color4 0.3 0.4 0.8 (0.5 :: GLfloat)
 >   drawRect playerX playerY playerW playerH
 >
->   atomically $ writeTVar v (fromRational $ toRational playerX)
+>
 >   flush
 >   swapBuffers
 
