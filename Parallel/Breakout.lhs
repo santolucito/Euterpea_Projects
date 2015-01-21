@@ -96,8 +96,8 @@ gives the fadeout time in seconds.
 > brickFade = 0.5
 
 
-> writeT :: TVar a -> a -> ()
-> writeT x v = unsafePerformIO $ atomically $ writeTVar x v
+> writeT :: TVar a -> a -> IO()
+> writeT x v = atomically $ writeTVar x v
 
 
 Game logic
@@ -114,7 +114,7 @@ function, but part of the tiny `Utils` module .
 main :: IO()
  main = do
 
-> game :: TVar Bool -> IO()
+> game :: TVar Double -> IO()
 > game v = do
 >   -- Creating a window without a depth buffer
 >   initialize
@@ -234,7 +234,6 @@ of these checks instead of having to recalculate them.
 >           evolveBrick dt _   (x,y,Dying a,_,_) = (x,y,Dying (a-realToFrac dt*brickFade),False,False)
 >           evolveBrick dt (V bx by) (x,y,_,_,_) = (x,y,if isKilled then Dying 1 else Live,collHorz,collVert)
 >               where isKilled = isHit || by < -fieldH-ballH
->                     _ = writeT v False
 >                     isHit = doRectsIntersect bx by ballW ballH x y brickW brickH
 >                     collHorz = isHit && isHorz
 >                     collVert = isHit && not isHorz
@@ -276,7 +275,7 @@ by using `delay` to define the dynamic collection.
 And knowing all these signals we can finally assemble the signal of
 rendering actions, i.e. the animation:
 
->   return $ renderLevel <$> playerX <*> ballPos <*> (map getBrickData <$> brickSamples)
+>   return $ renderLevel v <$> playerX <*> ballPos <*> (map getBrickData <$> brickSamples)
 
 The `doRectsIntersect` function decides whether two rectangles defined
 by their top left corners and dimensions overlap.
@@ -288,7 +287,7 @@ The `renderLevel` function takes a snapshot of the game and turns it
 into an IO action that displays this snapshot on the screen.  The
 `breakout` signal is the time-varying version of this IO action.
 
-> renderLevel playerX (V ballX ballY) bricks = do
+> renderLevel v playerX (V ballX ballY) bricks = do
 >   let drawRect x y xs ys = do
 >         loadIdentity
 >         renderPrimitive Quads $ do
@@ -322,6 +321,7 @@ into an IO action that displays this snapshot on the screen.  The
 >   color $ Color4 0.3 0.4 0.8 (0.5 :: GLfloat)
 >   drawRect playerX playerY playerW playerH
 >
+>   writeT v $ fromRational $ toRational playerX
 >   flush
 >   swapBuffers
 

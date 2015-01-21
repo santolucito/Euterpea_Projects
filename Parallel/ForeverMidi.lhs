@@ -11,17 +11,18 @@
 > import Control.Concurrent
 > import FRP.UISF.AuxFunctions
 
+> import Breakout
 
 > main :: IO ()
 > main = do
->  v <- newTVarIO 1.0
+>  v <- newTVarIO 0.0
 >  setNumCapabilities 2
 >  forkOn 1 $ game v
 >  forkOn 2 $ breakSound v
 >  return ()
 
 --------
-sounds
+sound
 
 > readT :: TVar a -> a
 > readT x = unsafePerformIO $ atomically $ readTVar x
@@ -32,18 +33,19 @@ sounds
 this works because of lazy eval
 we won't calculate the music value until we need to actually play it
 hence we have realtime composition
+For some reason, using a rest breaks make it stop playing after playing one rest
 
 > foo :: TVar Double -> [Music Pitch]
-> foo v | s > 0.7 = (e 4 (1/8)) : foo v
->       | s > 0.3 = (d 4 (1/8)) : foo v
->       | s >= 0   = (c 4 (1/8)) : foo v
+> foo v | s > 0.3 = (e 4 (1/8)) : foo v
+>       | s > -0.3 = (d 4 (1/8)) : foo v
+>       | otherwise  = (c 4 (1/8)) : foo v
 >    where
 >       s = readT v
 
 ---------
 visual
 
-> game v = runMUI (defaultMUIParams {uiSize=(300,300), uiTitle="Instrument Demo"})
+> game' v = runMUI (defaultMUIParams {uiSize=(300,300), uiTitle="Instrument Demo"})
 >                (mixer_board v)
 
 > volume_slider :: String -> UISF () (Double)
