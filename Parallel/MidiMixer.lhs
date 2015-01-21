@@ -1,4 +1,6 @@
-> {-# LANGUAGE Arrows, NoImplicitPrelude, QuasiQuotes, DataKinds #-}
+> {-# LANGUAGE Arrows #-}
+
+  {-# LANGUAGE Arrows, NoImplicitPrelude, QuasiQuotes, DataKinds #-}
 
 
 > module Main where
@@ -12,23 +14,24 @@
 > import FRP.UISF.AuxFunctions
 > import Control.Applicative
 
-> import BasePrelude
-> import Record
-> import Record.Lens
+import BasePrelude
+import Record
+import Record.Lens
 
-> type XData =
->  [r| {c :: [Int], e :: [Int]} |]
+type XData =
+ [r| {c :: [Int], e :: [Int]} |]
 
-> defXData = [r| {c=[],e=[]} |]
+defXData = [r| {c=[],e=[]} |]
 
-> getC :: XData -> [Int]
-> getC = view [lens|c|]
-> setC :: [Int] -> XData -> XData
-> setC = set [lens|c|]
+getC :: XData -> [Int]
+getC = view [lens|c|]
+setC :: [Int] -> XData -> XData
+setC = set [lens|c|]
+
 
 > main :: IO ()
 > main = do
->  v <- atomically $ newTVar defXData
+>  v <- atomically $ newTVar ([[],[],[]])
 >  setNumCapabilities 2
 >  forkOn 1 $ game v
 >  forkOn 2 $ breakSound v
@@ -40,23 +43,27 @@ sound
 > readT :: TVar a -> a
 > readT x = unsafeDupablePerformIO $ atomically $ readTVar x
 
-> breakSound :: TVar XData -> IO()
+> breakSound :: TVar ([[Int]]) -> IO()
 > breakSound v =
->    play' $ line $ foo v
+>    play' $ Modify (Instrument (toEnum 121)) $ line $ foo v
 
 this works because of lazy eval
 we won't calculate the music value until we need to actually play it
 hence we have realtime composition
 For some reason, using a rest breaks make it stop playing after playing one rest
 
-> foo :: TVar XData -> [Music (Pitch, Volume)]
+> foo :: TVar ([[Int]]) -> [Music (Pitch, Volume)]
 > foo v =
 >    let
->      s = readT v
->      n = replicate 4 (e 5 (1/8))
->      m = zipWith (\x y -> addVolume (127*x) y) (getC s) n
+>      xData = readT v
+>      listE = replicate 8 (g 5 (1/8))
+>      es = line $ zipWith (\x y -> addVolume (127*x) y) (xData!!0) listE
+>      listC = replicate 8 (e 5 (1/8))
+>      cs = line $ zipWith (\x y -> addVolume (127*x) y) (xData!!1) listC
+>      listC' = replicate 8 (e 4 (1/8))
+>      cs' = line $ zipWith (\x y -> addVolume (127*x) y) (xData!!2) listC'
 >    in
->      m ++  foo v
+>      chord [es,cs,cs'] :  foo v
 
 ---------
 visual
@@ -65,26 +72,18 @@ visual
 >                (mixer_board v)
 
 > boxes :: String -> UISF () ([Int])
-> boxes t = title t $ proc _ -> do
->   w <- checkbox "0" True -< ()
->   x <- checkbox "1" True -< ()
->   y <- checkbox "2" True -< ()
->   z <- checkbox "3" True -< ()
->   outA -< bin w ++ bin x ++ bin y ++ bin z
+> boxes t = title t $ leftRight $ proc _ -> do
+>   x <- concatA $ replicate 8 (checkbox "" False) -< cycle [()]
+>   outA -< map bin x
 >   where
->     bin True = [1]
->     bin False = [0]
+>     bin True = 1
+>     bin False = 0
 
 > uisfWriter :: TVar a -> UISF (a) ()
 > uisfWriter v = liftAIO (\x -> atomically $ writeTVar v x)
 
-> uisfReader :: TVar a -> UISF () (a)
-> uisfReader v = liftAIO (\x -> atomically $ readTVar v)
-
-> mixer_board :: TVar XData -> UISF () ()
-> mixer_board vc = title "Mixer" $ leftRight $ proc _ -> do
->    o <- uisfReader vc -< ()
->    v <- boxes "E 5"-< ()
->    v2 <- boxes "C 3" -< ()
->    _ <- uisfWriter vc -< (setC v o)
->    returnA -< ()
+> mixer_board :: TVar ([[Int]]) -> UISF () ()
+> mixer_board vc = title "Mixer" $ topDown $ proc _ -> do
+>   x <- concatA $ replicate 3 (boxes "") -< cycle [()]
+>   _ <- uisfWriter vc -< x
+>   returnA -< ()
