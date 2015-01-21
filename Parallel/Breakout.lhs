@@ -96,8 +96,6 @@ gives the fadeout time in seconds.
 > brickFade = 0.5
 
 
-> writeT :: TVar a -> a -> IO()
-> writeT x v = atomically $ writeTVar x v
 
 
 Game logic
@@ -321,7 +319,7 @@ into an IO action that displays this snapshot on the screen.  The
 >   color $ Color4 0.3 0.4 0.8 (0.5 :: GLfloat)
 >   drawRect playerX playerY playerW playerH
 >
->   writeT v $ fromRational $ toRational playerX
+>   atomically $ writeTVar v (fromRational $ toRational playerX)
 >   flush
 >   swapBuffers
 
