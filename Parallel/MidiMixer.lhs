@@ -70,7 +70,7 @@ because we are going try to keep sound and visual seperate
 ---------
 visual
 
-> game v = runMUI (defaultMUIParams {uiSize=(300,300), uiTitle="Instrument Demo"})
+> game v = runMUI (defaultMUIParams {uiSize=(300,320), uiTitle="Instrument Demo"})
 >                (mixer_board v)
 
 > boxes :: String -> UISF () ([Int])
