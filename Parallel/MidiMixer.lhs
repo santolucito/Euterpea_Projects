@@ -52,18 +52,20 @@ we won't calculate the music value until we need to actually play it
 hence we have realtime composition
 For some reason, using a rest breaks make it stop playing after playing one rest
 
+the number of tracks and number of beats is hard coded
+  in both the music side and visual side.
+This is actually a good thing (I think)
+because we are going try to keep sound and visual seperate
+
 > foo :: TVar ([[Int]]) -> [Music (Pitch, Volume)]
 > foo v =
 >    let
->      xData = readT v
->      listE = replicate 8 (g 5 (1/8))
->      es = line $ zipWith (\x y -> addVolume (127*x) y) (xData!!0) listE
->      listC = replicate 8 (e 5 (1/8))
->      cs = line $ zipWith (\x y -> addVolume (127*x) y) (xData!!1) listC
->      listC' = replicate 8 (e 4 (1/8))
->      cs' = line $ zipWith (\x y -> addVolume (127*x) y) (xData!!2) listC'
+>      mNotes = cycle [(1/8)] <**> [(a 5),(g 5),(e 5),(d 5),(c 5)]
+>      makeLine marks n =
+>           line $ zipWith (\x y -> addVolume (127*x) y) marks (replicate 8 n)
+>      xs = zipWith makeLine (readT v) mNotes
 >    in
->      chord [es,cs,cs'] :  foo v
+>      chord xs :  foo v
 
 ---------
 visual
@@ -84,6 +86,6 @@ visual
 
 > mixer_board :: TVar ([[Int]]) -> UISF () ()
 > mixer_board vc = title "Mixer" $ topDown $ proc _ -> do
->   x <- concatA $ replicate 3 (boxes "") -< cycle [()]
+>   x <- concatA $ replicate 5 (boxes "") -< cycle [()]
 >   _ <- uisfWriter vc -< x
 >   returnA -< ()
