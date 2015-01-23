@@ -31,8 +31,10 @@ sound
 
 > breakSound :: TVar ([[Int]]) -> IO()
 > breakSound v =
+
 >   playC 
 >     (defParams {devID=Just (unsafeOutputID 4)})
+>  --play'
 >     $ Modify (Instrument (toEnum 121)) $ line $ foo v
 
 this works because of lazy eval
