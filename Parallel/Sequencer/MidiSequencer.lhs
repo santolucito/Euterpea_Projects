@@ -3,6 +3,7 @@
 > module Main where
 > import Euterpea
 > import Euterpea.ExperimentalPlay
+> import Euterpea.IO.MIDI.MidiIO
 > import Control.Monad
 
 > import Control.Concurrent.STM
@@ -11,15 +12,15 @@
 > import FRP.UISF.AuxFunctions
 > import Control.Applicative
 
-> import ElereaSequencer
-> --import UISFSequencer
+> --import ElereaSequencer
+> import UISFSequencer
 
 > main :: IO ()
 > main = do
 >  v <- atomically $ newTVar ([[],[],[]])
 >  setNumCapabilities 2
->  forkOn 1 $ game v
 >  forkOn 2 $ breakSound v
+>  game v
 >  return ()
 
 --------
@@ -30,7 +31,9 @@ sound
 
 > breakSound :: TVar ([[Int]]) -> IO()
 > breakSound v =
->    play' $ Modify (Instrument (toEnum 121)) $ line $ foo v
+>   playC 
+>     (defParams {devID=Just (unsafeOutputID 4)})
+>     $ Modify (Instrument (toEnum 121)) $ line $ foo v
 
 this works because of lazy eval
 we won't calculate the music value until we need to actually play it

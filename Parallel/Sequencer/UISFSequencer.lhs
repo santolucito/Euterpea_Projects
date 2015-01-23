@@ -30,6 +30,8 @@ visual (UISF)
 
 > mixer_board :: TVar ([[Int]]) -> UISF () ()
 > mixer_board vc = title "UISF Sequencer" $ topDown $ proc _ -> do
+>   mo    <- selectOutput -< ()
+>   display -< mo
 >   x <- concatA $ replicate 5 (boxes "") -< cycle [()]
 >   _ <- uisfWriter vc -< x
 >   returnA -< ()
