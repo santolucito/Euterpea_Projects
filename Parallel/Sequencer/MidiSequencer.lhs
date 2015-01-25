@@ -29,6 +29,16 @@ sound
 > readT :: TVar a -> a
 > readT x = unsafeDupablePerformIO $ atomically $ readTVar x
 
+this needs to replace the default selection (from OS) in the play function
+
+> devI = do
+>   devs <- getAllDevices
+>   let d = head $ snd (devs)
+>   return d
+
+ let d' = head $ filter (\(i,d) -> name d /= "CoreMIDI") $ snd (devs)
+ test = filter (\(i,d) -> name d /= "Microsoft MIDI Mapper") getAllDevices
+
 > breakSound :: TVar ([[Int]]) -> IO()
 > breakSound v =
 
