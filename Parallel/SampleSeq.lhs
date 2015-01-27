@@ -95,8 +95,8 @@ toAudSF uisf = proc () -> do
 > main :: IO ()
 > main = do
 >  setNumCapabilities 2
->  forkOn 1 $ runUI "UI Demo" mixer_board
 >  forkOn 2 $ runme7
+>  runUI "UI Demo" mixer_board
 >  return ()
 
 need to figure out how to use the UISF value now
