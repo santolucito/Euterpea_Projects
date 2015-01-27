@@ -23,7 +23,7 @@ needed.  Type safety is ensured all the way.
 
 Below follows the full source of the example.
 
-> {-# LANGUAGE DoRec #-}
+> {-# LANGUAGE RecursiveDo #-}
 >
 > module Breakout where
 >
@@ -112,7 +112,7 @@ function, but part of the tiny `Utils` module .
 main :: IO()
  main = do
 
-> game :: TVar Double -> IO()
+> game :: TVar (Double,Double) -> IO()
 > game v = do
 >   -- Creating a window without a depth buffer
 >   initialize
@@ -161,6 +161,7 @@ fades out.  Also, since other signals are mostly interested in the
 current state of the bricks, we have to define a flattened version,
 which carries the snapshots of all the brick signals.  This is the
 `brickSamples` signal.
+
 
 > breakout mousePos windowSize v = do
 
@@ -313,10 +314,10 @@ into an IO action that displays this snapshot on the screen.  The
 >       Dying a -> color $ Color4 0.9 0.9 0.2 a
 >     drawRect x y brickW brickH
 >
->   atomically $ writeTVar v 0.0
+>   atomically $ writeTVar v (0,0)
 >   forM_ bricks $ \(x,y,s) -> do
 >     case s of
->       Dying 1 -> atomically $ writeTVar v (fromRational $ toRational 1.0)
+>       Dying 1 -> atomically $ writeTVar v ((fromRational $ toRational 1.0),(fromRational $ toRational (x+y)))
 >       _ -> return ()
 >
 >   color $ Color4 1 1 1 (0.6 :: GLfloat)
