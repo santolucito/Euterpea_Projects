@@ -26,25 +26,21 @@
 --------
 sound
 
-> readT :: TVar a -> a
-> readT x = unsafeDupablePerformIO $ atomically $ readTVar x
-
 this needs to replace the default selection (from OS) in the play function
 
 > devI = do
 >   devs <- getAllDevices
->   let d = head $ snd (devs)
+>   let d = fst $ head $ snd (devs)
 >   return d
 
- let d' = head $ filter (\(i,d) -> name d /= "CoreMIDI") $ snd (devs)
- test = filter (\(i,d) -> name d /= "Microsoft MIDI Mapper") getAllDevices
+> readT :: TVar a -> a
+> readT x = unsafeDupablePerformIO $ atomically $ readTVar x
+
 
 > breakSound :: TVar ([[Int]]) -> IO()
 > breakSound v =
-
 >   playC 
->     (defParams {devID=Just (unsafeOutputID 4)})
->  --play'
+>     (defParams {devID=Just (unsafePerformIO devI)})
 >     $ Modify (Instrument (toEnum 121)) $ line $ foo v
 
 this works because of lazy eval
@@ -59,10 +55,10 @@ because we are going try to keep sound and visual seperate
 
 > foo :: TVar ([[Int]]) -> [Music (Pitch, Volume)]
 > foo v =
->    let
->      mNotes = cycle [(1/8)] <**> [(a 5),(g 5),(e 5),(d 5),(c 5)]
->      makeLine marks n =
->           line $ zipWith (\x y -> addVolume (127*x) y) marks (replicate 8 n)
->      xs = zipWith makeLine (readT v) mNotes
->    in
->      chord xs :  foo v
+>   let
+>     pitches = cycle [(1/8)] <**> [(a 5),(g 5),(e 5),(d 5),(c 5)]
+>     makeLine uiData ps =
+>       line $ zipWith (\v p -> addVolume (127*v) p) uiData (replicate 8 ps)
+>     xs = zipWith makeLine (readT v) pitches
+>   in
+>     chord xs :  foo v
