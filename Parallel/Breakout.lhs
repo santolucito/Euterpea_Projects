@@ -57,8 +57,8 @@ detection, but is drawn as an ellipse.
 
 The initial position and velocity of the ball.
 
-> ballPos0 = V 0 (-0.4)
-> ballVel0 = V (-0.4) (0.35)
+> ballPos0 = V 0 (0.4)
+> ballVel0 = V (-0.4) (0.45)
 
 The dimensions and vertical position of the player.
 
