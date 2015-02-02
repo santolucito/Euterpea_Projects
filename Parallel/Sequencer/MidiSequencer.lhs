@@ -41,7 +41,7 @@ this needs to replace the default selection (from OS) in the play function
 > breakSound v =
 >   playC 
 >     (defParams {devID=Just (unsafePerformIO devI)})
->     $ Modify (Instrument (toEnum 121)) $ line $ foo v
+>     $ Modify (Instrument (Trumpet)) $ line $ foo v
 
 this works because of lazy eval
 we won't calculate the music value until we need to actually play it
