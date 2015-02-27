@@ -51,6 +51,12 @@ updateTransform u =
 >       p2 = Process f2 2
 >   runP [p1,p2]
 
+> main = do
+>   let p1 = MediaModule sound d1
+>       p2 = MediaModule game d1
+>   openDataChannel [p1,p2]
+
+where openDataChannel:: [a->a] which binds the data channel type too
 --------------------- -----------------------
 here is the code to do the translation
 
