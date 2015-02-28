@@ -71,32 +71,40 @@ The eventsToMusic function will convert a list of lists of SimpleMsgs (output fr
 >     let tracks' = splitByInstruments tracks -- handle any mid-track program changes
 >         is = map toInstr $ map getInstrument $ filter (not.null) tracks' -- instruments
 >         tDef = 500000 -- current tempo, 120bpm as microseconds per qn
->     in zipWith instrument is $ map (seToMusic tDef) tracks' where
+>     in zipWith instrument is $ map (seToMusic tDef 0) tracks' where
 >
 >   toInstr :: Int -> InstrumentName
 >   toInstr i = if i<0 then Percussion else toEnum i
 >
->   seToMusic :: Rational -> [SimpleMsg] -> Music (Pitch, Volume)
->   seToMusic tCurr [] = rest 0
->   seToMusic tCurr (e1@(SE(t,p,v,ins,On)):es) =
+
+ probably best to pair up simpleMsgs then make notes, for now we will keep track of the last note off
+and add that must rest. should get rest 0 for sequenctial notes(a line)
+
+>   seToMusic :: Rational -> Rational -> [SimpleMsg] -> Music (Pitch, Volume)
+>   seToMusic tCurr t3 [] = rest 0
+>   seToMusic tCurr t3 (e1@(SE(t,p,v,ins,On)):es) =
 >     let piMatch (SE(t1,p1,v1,ins1,e1)) = (p1==p && ins1==ins) && e1==Off
 >         piMatch (T(t1,x)) = False
 >         is = findIndices piMatch es -- find mactching note-offs
 >         SE(t1,p1,v1,ins1, e) = es !! (is !! 0) -- pick the first matching note-off
->         n = (rest t :+: note (t1-t) (pitch p,v)) -- create a Music note
+>         n = rest (t-t3) :+: (note (t1-t) (pitch p,v)) -- create a Music note
 >     in  if v > 0 then -- a zero volume note is silence
->              if length is > 0 then n :=: seToMusic tCurr es -- found an off
->              else seToMusic tCurr ((e1:es)++[correctOff e1 es]) -- missing off case
->         else seToMusic tCurr es
->   seToMusic tCurr (e1@(T (t,newTempo)):es) =
+>              if length is > 0 then n :+: seToMusic tCurr t1 es -- found an off
+>              else seToMusic tCurr t1 ((e1:es)++[correctOff e1 es]) -- missing off case
+>         else seToMusic tCurr t1 es
+>   seToMusic tCurr t3 (e1@(T (t,newTempo)):es) =
 >     let t2 = getTime $ head es -- find time of next event after tempo change
 >         tfact = tCurr / newTempo -- calculate tempo change factor
 >         es' = map (changeTime (subtract t)) es -- adjust start times
->         m = rest t :+: tempo tfact (seToMusic newTempo es')
->     in  if null es then rest 0 else m where
->         changeTime f (SE (t,p,v,i,e)) = SE (f t,p,v,i,e)
->         changeTime f (T (t,x)) = T (f t, x)
->   seToMusic tCurr (_:es) = seToMusic tCurr es -- ignore note-offs (already handled)
+>-- for now, no tempo changes
+>--         m =  tempo tfact (seToMusic newTempo t3 es')
+>         m =  seToMusic newTempo t3 es
+>     in if (null es || tfact == tCurr)
+>        then rest 0
+>        else m where
+>          changeTime f (SE (t,p,v,i,e)) = SE (f t,p,v,i,e)
+>          changeTime f (T (t,x)) = T (f t, x)
+>   seToMusic tCurr t3 (_:es) = seToMusic tCurr t3 es -- ignore note-offs (already handled)
 
 Finding the time of an event.
 
@@ -140,3 +148,4 @@ This function is an error-handling method for MIDI files which have mismatched n
 > correctOff (SE(t,p,v,ins,e)) es =
 >     let SE(t1,p1,v1,ins1,e1) = last $ filter isSE es
 >     in  SE(t1,p,v,ins,Off)
+

@@ -6,15 +6,6 @@
 
 > import Codec.Midi
 
-
-> defaultContext = Context {cTime = 0,
->                      cPlayer = fancyPlayer,
->                      cInst = Marimba,
->                      cDur = 1.0,
->                      cPch = 0,
->                      cKey = (C,Major),
->                      cVol = 100}
-
  readMidi :: FilePath -> [Music (Pitch,Volume)]
 
 > readMidi fp =
@@ -33,13 +24,10 @@
 > runme x = do
 >   let t1 = head $ readMidi x
 >       t2 = last $ readMidi x
->       m = (t1 :=: (line . reverse . lTolist) t2)
->   print $ dur t1
->   print $ dur t2
+>       m = (t2 :=: (Modify (Instrument Trumpet) t1))
+>   play m
 
 I think importFile from Codec.Midi needs everthing to be on a single track, multichannels are allloed
-
-> fst3 (a,b,c)=a
 
 works well with TM2.mid
 need to fix play' from ExperimentalPlay
