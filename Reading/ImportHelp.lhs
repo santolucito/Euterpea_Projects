@@ -1,3 +1,5 @@
+> {-# LANGUAGE LambdaCase #-}
+
 > module ImportHelp where
 > import Euterpea.Music.Note.Music
 > import Euterpea.Music.Note.MoreMusic
@@ -6,8 +8,73 @@
 > import Euterpea.IO.MIDI.GeneralMidi
 > import Data.List
 > import Codec.Midi
+> import System.IO.Unsafe
 
-Donya Quick Last updated 15-Oct-2013. Changes since last major version (15-Jan-2013): - makeUPM: (is !! i, 10) changed to (is !! i, 9) for Percussion. - Instrument numbers <0 are interpreted as Percussion. - ProgChange 10 x is now assigned (-1) as an instrument number. KNOWN ISSUES: - Tempo changes occuring between matching note on/off events may not be interpreted optimally. A performance-correct representation rather than a score-correct representation could be accomplished by looking for these sorts of between-on-off tempo changes when calculating a note's duration. This code was originally developed for research purposes and then adapted for CPSC 431/531 to overcome some problems exhibited by the original implementation of fromMidi. This code has functions to read Midi values into an intermediate type, SimpleMsg, before conversion to Music (Pitch, Volume) to make processing instrument changes easier. The following features will be retained from the input file: - Placement of notes relative to the beat (assumed to be quarternotes). - The pitch, volume, and instrument of each note. - Tempo changes indicated by TempoChange MIDI events Other MIDI controller information is currently not supported. This includes events such as pitch bends and modulations. For these controllers, there is no simple way to capture the information in a Music data structure. The following datatype is for a simplification of MIDI events into simple On/off events for pitches occurring at different times. There are two types of events considered: tempo changes and note events. The note events are represented by tuples of: - exact onset time, Rational - absolute pitch, AbsPitch - volume from 0-127, Volume - instrument number, Int. The value (-1) is used for Percussion. - on/off type, NEvent
+> import Debug.Trace
+
+Originally from donya, reworked partially by mark
+
+> readMidi :: FilePath -> [Music (Pitch,Volume)]
+> readMidi fp = 
+>   let
+>     m = unsafePerformIO $ importFile fp
+>   in
+>     case m of
+>       Right x -> cleanup $ (eventsToMusic . midiToEvents) x
+>       Left err ->  error err
+
+> readMidi' :: FilePath -> IO([Music (Pitch,Volume)])
+> readMidi' fp = do
+>   importFile fp >>= \case 
+>     Right x ->  return $ cleanup $ (eventsToMusic . midiToEvents) x
+>     Left err ->  error err
+
+> cleanup = map (removeZeros )
+
+> fixNegRests' :: Show a => Music a -> Music a
+> fixNegRests' m = 
+>  let
+>    l = concat $ map ml2l $ lineToList m 
+>    foo [] = Prim (Rest 0)
+>    foo [x] = x
+>    foo (x:x':xs) = 
+>      if (dur x' < 0)
+>      then x :=: foo xs
+>      else x :+: foo (x':xs)
+>  in 
+>    foo l 
+
+> ml2l                    :: Music a -> [Music a]
+> ml2l (Prim (Rest 0))    = []
+> ml2l (n :+: ns)         = n : ml2l ns
+> ml2l (n :=: n')         = ml2l n ++ ml2l n'
+> ml2l n                  = [n]
+
+
+> fixNegRests :: Music a -> Music a
+> fixNegRests (Prim p)      = Prim p
+> fixNegRests (m1 :+: m2)   = 
+>  let
+>    m'1 = fixNegRests m1
+>    m'2 = fixNegRests m2
+>  in case (m'1,m'2) of
+>       ((Prim (Rest x)),m)  -> 
+>         if x < 0 
+>         then Prim (Rest (x)) :=: m
+>         else (Prim (Rest x)) :+: m
+>       (m,m')  ->
+>         case m' of
+>           (Prim (Rest x) :+: n) ->
+>             if x < 0 
+>             then m :=: Prim (Rest (x)) 
+>             else m :+: (Prim (Rest x))
+>           _ -> m :+: m'
+> fixNegRests (m1 :=: m2)   = (fixNegRests m1 :=: fixNegRests m2)
+> fixNegRests (Modify c m)  = Modify c (fixNegRests m)
+
+
+
+
 
 > data NEvent = On | Off
 >   deriving (Eq, Show, Ord)
@@ -64,14 +131,13 @@ The first track is the tempo track. It's events need to be distributed across th
 >     if length tracks > 1 then map (sort . (head tracks ++)) (tail tracks)
 >     else tracks -- importing a single-track file with embedded tempo changes.
 
-The eventsToMusic function will convert a list of lists of SimpleMsgs (output from midiToEvents) to a Music(Pitch,Volume) structure. All notes will be connected together using the (:=:) constructor. For example, the first line of "Frere Jaque", which would normally be written as: c 5 qn :+: d 5 qn :+: e 5 qn :+: c 5 qn would actually get represented like this when read in from a MIDI: (rest 0 :+: c 5 qn) :=: (rest qn :+: d 5 qn) :=: (rest hn :+: e 5 qn) :=: (rest dhn :+: c 5 qn) This structure is clearly more complicated than it needs to be. However, identifying melodic lines and phrases inorder to group the events in a more musically appropriate manor is non-trivial, since it requires both phrase and voice identification within an instrument To see why this is the case, consider a Piano, which may have right and lef thand lines that might be best separated by :=: at the outermost level. In a MIDI, however, we are likely to get all of the events for both hands lumped into the same track. The parallelized structure is also required for keeping tempo changes syced between instruments. While MIDI files allow tempo changes to occur in the middle of a note, Euterpea's Music values do not. Instruments will be grouped at the outermost level. For example, if there are 2 instruments with music values m1 and m2 repsectively, the structure would be: (instrument i1 m1) :=: (instrument i2 m1) Tempo changes are processed within each instrument.
 
 > eventsToMusic :: [[SimpleMsg]] -> [Music (Pitch, Volume)]
 > eventsToMusic tracks =
 >     let tracks' = splitByInstruments tracks -- handle any mid-track program changes
 >         is = map toInstr $ map getInstrument $ filter (not.null) tracks' -- instruments
 >         tDef = 500000 -- current tempo, 120bpm as microseconds per qn
->     in zipWith instrument is $ map (seToMusic tDef 0) tracks' where
+>     in zipWith instrument is $ map fixNegRests' $ map (seToMusic tDef 0) tracks' where
 >
 >   toInstr :: Int -> InstrumentName
 >   toInstr i = if i<0 then Percussion else toEnum i
@@ -87,7 +153,10 @@ and add that must rest. should get rest 0 for sequenctial notes(a line)
 >         piMatch (T(t1,x)) = False
 >         is = findIndices piMatch es -- find mactching note-offs
 >         SE(t1,p1,v1,ins1, e) = es !! (is !! 0) -- pick the first matching note-off
->         n = rest (t-t3) :+: (note (t1-t) (pitch p,v)) -- create a Music note
+>         r = rest (t-t3) -- create a rest since the last note off
+>         n = if (dur r <0)
+>             then r :+: (note (t1-t) (pitch p,v)) --if we have negative rest, play with previous note (TODO fix)
+>             else r :+: (note (t1-t) (pitch p,v))
 >     in  if v > 0 then -- a zero volume note is silence
 >              if length is > 0 then n :+: seToMusic tCurr t1 es -- found an off
 >              else seToMusic tCurr t1 ((e1:es)++[correctOff e1 es]) -- missing off case

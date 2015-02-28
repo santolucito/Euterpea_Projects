@@ -2,30 +2,46 @@
 > import Euterpea
 > import Euterpea.ExperimentalPlay
 > import ImportHelp
-> import System.IO.Unsafe
 
-> import Codec.Midi
+> r x = do
+>   i <- readMidi' x
+>   let m = map (takeM 8) i
+>       t1 = head m
+>       t2 = head $ tail  m
+>       m' = t1 :=: t2
+>   return m'
 
- readMidi :: FilePath -> [Music (Pitch,Volume)]
+> runme1 x= do
+>   r x >>= (writeMidi "testOut.mid")
 
-> readMidi fp =
->   let m = unsafePerformIO $ importFile fp
->   in
->     case m of
->       Right x ->  (eventsToMusic . midiToEvents) x
->       Left err ->  error err
+> runme2 x = do
+>   r x >>= print
+
+> runme3 x= do
+>   r x >>= play
+
+
+> runme x = do
+>   i <- readMidi' x
+>   let m = map (takeM 4) i
+>       t1 = head m
+>       t2 = revM $ last m
+>       m' = t1 :+: t2
+>   writeMidi "testOut.mid" m'
+
+
+ testRun1 x = do
+   let m = takeM 4 $ fst3 $ readMidi x
+       m' = m :+: (revM m)
+   play $ timesM 4 m'
+
+
 
 > lTolist                    :: Music a -> [Music a]
 > lTolist (Prim (Rest 0))    = []
 > lTolist (n :+: ns)         = n : lTolist ns
 > lTolist (n :=: ns)         = n : lTolist ns
 > lTolist (n)                = [n]
-
-> runme x = do
->   let t1 = head $ readMidi x
->       t2 = last $ readMidi x
->       m = (t2 :=: (Modify (Instrument Trumpet) t1))
->   play m
 
 I think importFile from Codec.Midi needs everthing to be on a single track, multichannels are allloed
 
