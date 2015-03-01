@@ -9,7 +9,7 @@
 >       t1 = head m
 >       t2 = head $ tail  m
 >       m' = t1 :=: t2
->   return m'
+>   return (m' :+: revM m')
 
 > runme1 x= do
 >   r x >>= (writeMidi "testOut.mid")
@@ -21,13 +21,6 @@
 >   r x >>= play
 
 
-> runme x = do
->   i <- readMidi' x
->   let m = map (takeM 4) i
->       t1 = head m
->       t2 = revM $ last m
->       m' = t1 :+: t2
->   writeMidi "testOut.mid" m'
 
 
  testRun1 x = do
