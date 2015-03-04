@@ -1,15 +1,44 @@
 > module Main where
-> import Euterpea
+> import Euterpea hiding (f)
 > import Euterpea.ExperimentalPlay
 > import ImportHelp
 
+> import Data.List
+
 > r x = do
 >   i <- readMidi' x
->   let m = map (takeM 8) i
->       t1 = head m
->       t2 = head $ tail  m
->       m' = t1 :=: t2
->   return (m' :+: revM m')
+>   let 
+>     t1 = head i
+>     t2 = head $ tail i
+>     m  = t1 :=: t2
+>   return $ f m
+
+f :: Music Pitch -> Music Pitch
+
+> f m =
+>     line $ sortBy avgP (phrases m)
+
+ avgP :: Music a -> Int
+
+> avgP m m'
+>    | p >  p'        =  GT
+>    | p == p'        =  EQ
+>    | p <  p'        =  LT
+>  where
+>     f = sum . map foo . lToList 
+>     p = f m
+>     p'= f m'
+
+ phrases :: Music a -> [Music a]
+
+> phrases m 
+>  | dur m > 0 = takeM 4 m : (phrases $ dropM 4 m)
+>  | dur m <= 0 = []
+
+> foo :: Primitive (Pitch,Volume) -> Int
+> foo (Rest _) = 0
+> foo (Note d (p,_)) = absPitch p
+
 
 > runme1 x= do
 >   r x >>= (writeMidi "testOut.mid")
@@ -20,21 +49,14 @@
 > runme3 x= do
 >   r x >>= play
 
+> lToList  :: Music a -> [Primitive a]
+> lToList (Prim x)      = [x]
+> lToList (n :+: ns)           = lToList n ++ lToList ns
+> lToList (n :=: ns)           = lToList n ++ lToList ns
+> lToList (Modify _ ns)  = lToList ns
 
+> main = runme1 "TurkishMarch.mid"
 
-
- testRun1 x = do
-   let m = takeM 4 $ fst3 $ readMidi x
-       m' = m :+: (revM m)
-   play $ timesM 4 m'
-
-
-
-> lTolist                    :: Music a -> [Music a]
-> lTolist (Prim (Rest 0))    = []
-> lTolist (n :+: ns)         = n : lTolist ns
-> lTolist (n :=: ns)         = n : lTolist ns
-> lTolist (n)                = [n]
 
 I think importFile from Codec.Midi needs everthing to be on a single track, multichannels are allloed
 
