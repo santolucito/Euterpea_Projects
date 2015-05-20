@@ -10,13 +10,15 @@
 >   let 
 >     t1 = head i
 >     t2 = head $ tail i
->     m  = t1 :=: t2
->   return $ f m
+>     m  = f t1 :=: f t2
+>   return $ m
 
 f :: Music Pitch -> Music Pitch
 
 > f m =
->     line $ sortBy avgP (phrases m)
+>--     line $ sortBy avgP (phrases m)
+>--     line $ (phrases m)
+>     line $ take 3 $ cycle [(takeM 4 m) :+: revM(takeM 4 m)]
 
  avgP :: Music a -> Int
 
