@@ -12,7 +12,7 @@
 > import FRP.UISF.AuxFunctions
 > import Control.Applicative
 
-> import KinectModule
+> import Kmod
 
 > main :: IO ()
 > main = do
@@ -56,6 +56,7 @@ just use a smarter scaling than mod to get something sensical
 > foo dataChan =
 >   let
 >     inData = readT dataChan
->     currNote = note qn (pitch (30 + mod inData 30))
+>     scale x = 40 + 3*(floor $ (fromIntegral (mod x 20000))/2000)
+>     currNote = note qn (pitch (scale inData))
 >   in
->     currNote :  foo dataChan
+>     currNote : foo dataChan
