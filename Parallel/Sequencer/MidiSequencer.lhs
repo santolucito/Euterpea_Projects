@@ -1,47 +1,36 @@
 > {-# LANGUAGE Arrows #-}
 
-> module Main where
+> module MidiSequencer where
+
 > import Euterpea
 > import Euterpea.ExperimentalPlay
 > import Euterpea.IO.MIDI.MidiIO
 > import Control.Monad
+> import Control.Applicative
 
 > import Control.Concurrent.STM
 > import System.IO.Unsafe
-> import Control.Concurrent
-> import FRP.UISF.AuxFunctions
-> import Control.Applicative
-
-> --import ElereaSequencer
-> import UISFSequencer
-
-> main :: IO ()
-> main = do
->  v <- atomically $ newTVar ([[],[],[]])
->  setNumCapabilities 2
->  forkOn 2 $ breakSound v
->  game v
->  return ()
 
 --------
 sound
 
+
+> readT :: TVar a -> a
+> readT x = unsafeDupablePerformIO $ atomically $ readTVar x
+
+> breakSound :: TVar ([[Int]]) -> IO()
+> breakSound v =
+>   playC 
+>     (defParams )
+>     $ Modify (Instrument (Trumpet)) $ line $ foo v
+
 this needs to replace the default selection (from OS) in the play function
+only works on mac right now
 
 > devI = do
 >   devs <- getAllDevices
 >   let d = fst $ head $ snd (devs)
 >   return d
-
-> readT :: TVar a -> a
-> readT x = unsafeDupablePerformIO $ atomically $ readTVar x
-
-
-> breakSound :: TVar ([[Int]]) -> IO()
-> breakSound v =
->   playC 
->     (defParams {devID=Just (unsafePerformIO devI)})
->     $ Modify (Instrument (Trumpet)) $ line $ foo v
 
 this works because of lazy eval
 we won't calculate the music value until we need to actually play it
