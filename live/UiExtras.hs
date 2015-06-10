@@ -53,6 +53,7 @@ textboxH y = focusable $
     update s  i _ (SKey RIGHT     _ True) = (s, min (i+1) (length s))
     update s _i _ (SKey END       _ True) = (s, length s)
     update s _i _ (SKey HOME      _ True) = (s, 0)
+    update s  i _ (SKey ENTER     _ True) = (take i s ++ "\\n" ++ drop i s, length s)
     update s _i c (Button (x,_) True True) = (s, min (length s) $ (x - xoffset c) `div` 8)
     update s  i _ _                        = (s, max 0 $ min i $ length s)
     drawCursor (False, _) _ = nullGraphic

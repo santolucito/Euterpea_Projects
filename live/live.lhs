@@ -26,12 +26,12 @@
 > editor :: UISF () ()
 > editor = setLayout (makeLayout (Stretchy 150) (Fixed 100)) $ 
 >                title "Saving Text" $ topDown $ proc _ -> do
->   code <- leftRight $ label "Code: " >>> textbox2 3 "1+?" -< Nothing
+>   code <- leftRight $ label "Code: " >>> textbox2 6 "1+?" -< Nothing
 >   input <-leftRight $ label "Input: " >>> textbox2 1 "1,2" -< Nothing
 >   c <- arr parse >>> unique -< (code, input)
 >   output <- uisfPipeE (mapM runCode) -< c
 >   o <- (evMap $ arr collect )>>> hold ["none"] -< output
->   leftRight $ label "Output: " >>> displayField -< concat $ intersperse "&" o
+>   leftRight $ label "Output: " >>> displayField -< concat $ intersperse " & " o
 >   returnA -< ()
 
 
@@ -51,7 +51,7 @@
 > parse :: (String,String) -> [String]
 > parse (c,i) = 
 >   let
->     is = splitOn "&" i :: [String]
+>     is = splitOn " & " i :: [String]
 >     all_c = map (replace_line c) is :: [String]
 >   in
 >     map (\x -> "show (" ++ x ++ ")") all_c
