@@ -315,9 +315,10 @@ into an IO action that displays this snapshot on the screen.  The
 >       Dying a -> color $ Color4 0.9 0.9 0.2 a
 >     drawRect x y brickW brickH
 >
+>   let toSendVal x = 40 + 20 * (fromRational $ toRational x)
 >   forM_ bricks $ \(x,y,s) -> do
 >     case s of
->       Dying 1 -> f (60,100) -- (fromRational $ toRational x, fromRational $ toRational y) -- (fromRational $ toRational (x+y)))
+>       Dying 1 -> f (toSendVal x+toSendVal y, 1)
 >       _ -> return ()
 >
 >   f (-1,-1)

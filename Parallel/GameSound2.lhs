@@ -16,7 +16,7 @@
 
 > import Euterpea.ExperimentalPlay
 
-> defaultID = 4
+> defaultID = 0
 
 > stopCo :: (Double, Double) -> Bool
 > stopCo (a,b) = a < -1 || b < -1
@@ -25,15 +25,15 @@
 > stopOp _ = terminateMidi
 
 > update :: (Double,Double) -> IO(Double,Double)
-> update (a,b) = do 
+> update (a,b) = do
 >   if a>=0 && b>=0 then putStrLn (show (a,b)) else return ()
 >   return (-1,-1)
 
 > readFun:: (Double,Double) -> IO ()
 > readFun (a,b) = do
->   if a>=0 && b>=0 then sendMidiOut else return()
+>   if a>=0 && b>=0 then (sendMidiOut $floor a) >> putStrLn "test" else return()
 >   return ()
 
-> sendMidiOut ::  IO ()
-> sendMidiOut = outputMidi (unsafeOutputID defaultID)>> 
->     deliverMidiEvent (unsafeOutputID defaultID) (0, Std $ NoteOn 0 60 100)
+> sendMidiOut ::  Int -> IO ()
+> sendMidiOut x = outputMidi (unsafeOutputID defaultID)>>
+>     deliverMidiEvent (unsafeOutputID defaultID) (0, Std $ NoteOn 0 x 100)

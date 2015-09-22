@@ -5,7 +5,7 @@
 > import GameSound2
 > import MediaModules
 
-> --import Euterpea 
+> --import Euterpea
 > --import Euterpea.Experimental
 > --import Euterpea.IO.MIDI.MidiIO hiding (Time)
 > --import FRP.UISF.UISF hiding (Time)
@@ -27,6 +27,4 @@
 >   hSetBuffering stdin NoBuffering
 >   hFlush stdout
 >   initializeMidi
->   sendMidiOut
->   wait 2
 >   openChannel 2 (-1,-1) [m1,m2]
