@@ -11,6 +11,7 @@
 
 > import FRP.UISF  hiding (displayStr)
 > import FRP.UISF.UISF
+> import FRP.UISF.Graphics.Text
 
 -- import UiExtras
 
@@ -25,10 +26,18 @@
 
 
 > editor :: UISF () ()
+<<<<<<< HEAD
 > editor =  title "Saving Text" $ topDown $ proc _ -> do
 >   code <- leftRight $ label "Code: " >>> textField NoWrap "1+?" -< Nothing
 >   input <- leftRight $ label "Input: " >>> (setLayout (makeLayout (Stretchy 300) (Fixed 300)) $ textField NoWrap "1\n2" ) -< Nothing
 >   c <- arr parse >>> unique -< (code, input)
+=======
+> editor = setLayout (makeLayout (Stretchy 150) (Fixed 100)) $ 
+>                title "Saving Text" $ topDown $ proc _ -> do
+>   code <- leftRight $ label "Code: " >>> textField NoWrap "1+?" -< Nothing
+>   input <-leftRight $ label "Input: " >>> textField NoWrap "1\n2" -< Nothing
+>   c <- arr parse >>> unique -< (uitextToString code, uitextToString input)
+>>>>>>> 9cc965b48137dcffc5cdc5fb1daaee898b584f88
 >   output <- uisfPipeE (mapM runCode) -< c
 >   o <- (evMap $ arr collect )>>> hold ["none"] -< output
 >   leftRight $ label "Output: " >>> textField NoWrap "" -< Just $ concat $ intersperse "\n"  o

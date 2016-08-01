@@ -112,8 +112,8 @@ function, but part of the tiny `Utils` module .
 main :: IO()
  main = do
 
-> game :: TVar (Double,Double) -> IO()
-> game v = do
+> game :: ((Double,Double) -> IO()) -> IO()
+> game f = do
 >   -- Creating a window without a depth buffer
 >   initialize
 >   openWindow (Size 640 480) [DisplayRGBBits 8 8 8, DisplayAlphaBits 8] Window
@@ -131,10 +131,11 @@ main :: IO()
 >
 >   -- All we need to get going is an IO-valued signal and an IO
 >   -- function to update the external signals
->   game <- start (breakout mousePosition windowSize v)
+>   game <- start (breakout mousePosition windowSize f)
 >   driveNetwork game (readInput mousePositionSink closed)
 >
 >   -- The inevitable sad ending
+>   f (-2,-2)
 >   closeWindow
 
 The `breakout` function creates a reactive signal that carries the
@@ -163,7 +164,7 @@ which carries the snapshots of all the brick signals.  This is the
 `brickSamples` signal.
 
 
-> breakout mousePos windowSize v = do
+> breakout mousePos windowSize f = do
 
 User-driven player position:
 
@@ -274,7 +275,7 @@ by using `delay` to define the dynamic collection.
 And knowing all these signals we can finally assemble the signal of
 rendering actions, i.e. the animation:
 
->   return $ renderLevel v <$> playerX <*> ballPos <*> (map getBrickData <$> brickSamples)
+>   return $ renderLevel f <$> playerX <*> ballPos <*> (map getBrickData <$> brickSamples)
 
 The `doRectsIntersect` function decides whether two rectangles defined
 by their top left corners and dimensions overlap.
@@ -286,7 +287,7 @@ The `renderLevel` function takes a snapshot of the game and turns it
 into an IO action that displays this snapshot on the screen.  The
 `breakout` signal is the time-varying version of this IO action.
 
-> renderLevel v playerX (V ballX ballY) bricks = do
+> renderLevel f playerX (V ballX ballY) bricks = do
 >   let drawRect x y xs ys = do
 >         loadIdentity
 >         renderPrimitive Quads $ do
@@ -314,11 +315,13 @@ into an IO action that displays this snapshot on the screen.  The
 >       Dying a -> color $ Color4 0.9 0.9 0.2 a
 >     drawRect x y brickW brickH
 >
->   atomically $ writeTVar v (0,0)
+>   let toSendVal x = 40 + 20 * (fromRational $ toRational x)
 >   forM_ bricks $ \(x,y,s) -> do
 >     case s of
->       Dying 1 -> atomically $ writeTVar v ((fromRational $ toRational 1.0),(fromRational $ toRational (x+y)))
+>       Dying 1 -> f (toSendVal x+toSendVal y, 1)
 >       _ -> return ()
+>
+>   f (-1,-1)
 >
 >   color $ Color4 1 1 1 (0.6 :: GLfloat)
 >   drawEllipse ballX ballY ballW ballH 20

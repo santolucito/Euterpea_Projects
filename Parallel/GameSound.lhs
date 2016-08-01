@@ -10,6 +10,7 @@
 > import System.IO.Unsafe
 > import Control.Concurrent
 > import FRP.UISF.AuxFunctions
+> import FRP.UISF.Asynchrony
 > import Control.Applicative
 
 > import Breakout
