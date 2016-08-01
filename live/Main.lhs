@@ -25,14 +25,13 @@
 
 
 > editor :: UISF () ()
-> editor = setLayout (makeLayout (Stretchy 150) (Fixed 100)) $ 
->                title "Saving Text" $ topDown $ proc _ -> do
->   code <- leftRight $ label "Code: " >>> textField 5 "1+?" -< Nothing
->   input <-leftRight $ label "Input: " >>> textField 5 "1\n2" -< Nothing
+> editor =  title "Saving Text" $ topDown $ proc _ -> do
+>   code <- leftRight $ label "Code: " >>> textField NoWrap "1+?" -< Nothing
+>   input <- leftRight $ label "Input: " >>> (setLayout (makeLayout (Stretchy 300) (Fixed 300)) $ textField NoWrap "1\n2" ) -< Nothing
 >   c <- arr parse >>> unique -< (code, input)
 >   output <- uisfPipeE (mapM runCode) -< c
 >   o <- (evMap $ arr collect )>>> hold ["none"] -< output
->   leftRight $ label "Output: " >>> textField 5 "" -< Just $ concat $ intersperse "\n"  o
+>   leftRight $ label "Output: " >>> textField NoWrap "" -< Just $ concat $ intersperse "\n"  o
 >   returnA -< ()
 
 
