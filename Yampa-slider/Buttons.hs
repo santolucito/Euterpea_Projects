@@ -9,26 +9,18 @@ import Control.Applicative
 
 buttonC0 :: Extent 
 buttonC0  = makeExtent   35     5  (125) (75)
-rows' :: [(Int, Int) -> Extent]
-rows' = map (\x (low, high) -> makeExtent low high x (x-50)) [120,60,0,-60,-120]
-
 rows :: [Extent]
-rows = map (\x -> makeExtent (-5) (-35) x (x-50)) [120,60,0,-60,-120]
-
-discs :: [Extent]
-discs = zipWith ($) rows' (replicate 5 (-5,-35))
---why isnt this the same as above?
---discs = rows' <*> (replicate 5 (-5,-35))
+rows = repeat (makeExtent (-5) (-35) 0 (-50))
 
 -- Button rendering
 
 renderUI :: Int 
-         -> [Int]
+         -> [(Int,Int)]
          -> Picture
 renderUI count0 locs = 
   let
-    s = zip discs locs
-    ss = mconcat $ map (\(widget,pos) -> translate 0 (fromIntegral pos) (renderButton widget (show pos))) s
+    s = zip rows locs 
+    ss = mconcat $ map (\(widget,(x,y)) -> translate (fromIntegral x) (fromIntegral y) (renderButton widget (show y))) s
   in
    --renderButton buttonC0 (show count0) <> 
    ss

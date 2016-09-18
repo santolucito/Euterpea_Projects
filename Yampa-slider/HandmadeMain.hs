@@ -23,29 +23,43 @@ mainSF :: SF (Event G.Event) Picture
 mainSF = proc e ->
   do
     click <- arr (filterE (isJust. toYampaEvent)) -< e 
-    b1 <- buttonControl (-99) -< ()
-    b2 <- buttonControl (-50) -< ()
-    b3 <- buttonControl 0 -< ()
-    b4 <- buttonControl 50 -< ()
-    b5 <- buttonControl 99 -< ()
-    finalPic <- arr drawGame -< [b1,b2,b3,b4,b5]
+    r1 <- colControl (-100) -< ()
+    r2 <- colControl (-50) -< ()
+    r3 <- colControl 0 -< ()
+    r4 <- colControl 50 -< ()
+    r5 <- colControl 100 -< ()
+    finalPic <- arr drawGame -< concat [r1,r2,r3,r4,r5]
     returnA  -< finalPic
   where
-    sliderDir (slide,dir) = if abs slide>100 then (-1*dir) else dir
-    sliderPos (slide,dir) = slide + dir*1
     drawGame slide = renderUI 10 slide
    
 
-buttonControl :: Int -> SF () Int
-buttonControl i = proc _ ->
+--build a column of buttons at an x pos
+colControl :: Int -> SF () [(Int,Int)]
+colControl x = proc _ ->
+  do
+    rec
+      b1' <- iPre (0,0) -< b1
+      b2' <- iPre (0,0) -< b2
+      b3' <- iPre (0,0) -< b3
+      let bs = [b1',b2',b3']
+      b1 <- buttonControl x (-99) -< bs
+      b2 <- buttonControl x 0 -< bs
+      b3 <- buttonControl x 99 -< bs
+    returnA -< [b1,b2,b3]
+
+--takes a list of positions of buttons in its row
+--checks for collisions on the y and give updated position
+buttonControl :: Int -> Int -> SF [(Int,Int)] (Int,Int)
+buttonControl x y = proc ys ->
   do
     rec 
       direction' <- iPre 1 -< direction
-      sliderV'   <- iPre i -< sliderV
+      sliderV'   <- iPre y -< sliderV
       
       direction  <- arr sliderDir -< (sliderV',direction')
       sliderV    <- arr sliderPos -< (sliderV',direction)
-    returnA  -< sliderV
+    returnA  -< (x,sliderV)
   where
     sliderDir (slide,dir) = if abs slide>100 then (-1*dir) else dir
     sliderPos (slide,dir) = slide + dir*1
