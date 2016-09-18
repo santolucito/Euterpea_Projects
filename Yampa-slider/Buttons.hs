@@ -15,12 +15,12 @@ rows = repeat (makeExtent (-5) (-35) 0 (-50))
 -- Button rendering
 
 renderUI :: Int 
-         -> [(Int,Int)]
+         -> [(Color,(Int,Int))]
          -> Picture
 renderUI count0 locs = 
   let
     s = zip rows locs 
-    ss = mconcat $ map (\(widget,(x,y)) -> translate (fromIntegral x) (fromIntegral y) (renderButton widget (show y))) s
+    ss = mconcat $ map (\(widget,(c,(x,y))) -> translate (fromIntegral x) (fromIntegral y) (renderButton widget c (show y))) s
   in
    --renderButton buttonC0 (show count0) <> 
    ss
@@ -31,8 +31,8 @@ unify n (Just n') | n == n'   = show n
                   | otherwise = printf "%d != %d" n n'
 
 
-renderButton :: Extent -> String -> Picture
-renderButton ex s = color azure bg <> color white fg
+renderButton :: Extent -> Color -> String -> Picture
+renderButton ex c s = color c bg <> color white fg
   where
     bg = polygon (cornerPoints ex)
     fg = translate x y

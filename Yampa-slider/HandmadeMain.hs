@@ -35,7 +35,7 @@ mainSF = proc e ->
    
 
 --build a column of buttons at an x pos
-colControl :: Int -> SF () [(Int,Int)]
+colControl :: Int -> SF () [(Color,(Int,Int))]
 colControl x = proc _ ->
   do
     rec
@@ -43,32 +43,35 @@ colControl x = proc _ ->
       b2' <- iPre (0,0) -< b2
       b3' <- iPre (0,0) -< b3
       let bs = [b1',b2',b3']
-      b1 <- buttonControl x (-99) -< bs
-      b2 <- buttonControl x 0 -< bs
-      b3 <- buttonControl x 99 -< bs
-    returnA -< [b1,b2,b3]
+      b1 <- buttonControl x (x-40) -< [b2',b3']
+      b2 <- buttonControl x x -< [b1',b3']
+      b3 <- buttonControl x (x+40) -< [b1',b2']
+    returnA -< [(black,b1),(yellow,b2),(azure,b3)]
 
 --takes a list of positions of buttons in its row
 --checks for collisions on the y and give updated position
 buttonControl :: Int -> Int -> SF [(Int,Int)] (Int,Int)
-buttonControl x y = proc ys ->
+buttonControl x y = proc ps ->
   do
     rec 
       direction' <- iPre 1 -< direction
       sliderV'   <- iPre y -< sliderV
       
-      direction  <- arr sliderDir -< (sliderV',direction')
+      dirC       <- arr sliderDir -< (sliderV',direction')
+      direction  <- arr checkCollision -< (dirC,sliderV',ps)
       sliderV    <- arr sliderPos -< (sliderV',direction)
     returnA  -< (x,sliderV)
   where
-    sliderDir (slide,dir) = if abs slide>100 then (-1*dir) else dir
+    sliderDir (slide,dir) = if abs slide>150 then (-1*dir) else dir
     sliderPos (slide,dir) = slide + dir*1
+    nearBy y ys  = any (\y' -> abs (y-y') < 20) ys
+    checkCollision (dir,slide,ps) = if slide `nearBy` (map snd ps) then (-1*dir) else dir
 
 playGame :: IO ()
 playGame =
   do
     playYampa
-        (InWindow "Yampa Example" (320, 240) (800, 600))
+        (InWindow "Yampa Example" (420, 360) (800, 600))
         white
         30
         mainSF
