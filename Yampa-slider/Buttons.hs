@@ -8,7 +8,7 @@ import Text.Printf
 import Control.Applicative
 
 buttonC0 :: Extent 
-buttonC0  = makeExtent   35     5  (125) (75)
+buttonC0  = makeExtent   35     5  200 (150)
 rows :: [Extent]
 rows = repeat (makeExtent (-5) (-35) 0 (-50))
 
@@ -22,7 +22,7 @@ renderUI count0 locs =
     s = zip rows locs 
     ss = mconcat $ map (\(widget,(c,(x,y))) -> translate (fromIntegral x) (fromIntegral y) (renderButton widget c (show y))) s
   in
-   --renderButton buttonC0 (show count0) <> 
+   renderButton buttonC0 azure "Motion" <> 
    ss
     
 unify :: Int -> Maybe Int -> String
