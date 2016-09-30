@@ -18,6 +18,7 @@ import qualified Graphics.Gloss.Interface.IO.Game as G
 import Buttons
 import GlossInterface
 
+import Debug.Trace
 
 mainSF :: SF (Event G.Event) Picture
 mainSF = proc e ->
@@ -54,16 +55,27 @@ buttonControl :: Int -> Int -> SF ([(Int,Int)],Event G.Event) (Int,Int)
 buttonControl x y = proc (ps,e) ->
   do
     rec 
+      hadEvent'  <- iPre False -< hadEvent
+      hadEvent   <- arr (\(e,x) -> if e then not x else x) -< (isEvent e,hadEvent')
+      
       direction' <- iPre 1 -< direction
       sliderV'   <- iPre y -< sliderV
       
       dirC       <- arr sliderDir -< (sliderV',direction')
       direction  <- arr checkCollision -< (dirC,sliderV',ps)
-      sliderV    <- arr sliderPos -< (sliderV',direction)
-    returnA -< (x,if isEvent e then sliderV'-1 else sliderV)
+      sliderV    <- arr sliderPos -< (sliderV',direction,isEvent e,hadEvent)
+      
+    returnA -< (x,sliderV)
   where
     sliderDir (slide,dir) = if abs slide>150 then (-1*dir) else dir
-    sliderPos (slide,dir) = slide + dir*1
+    sliderPos (slide,dir,e,h) =
+      let
+        bound b = min b . max (-b) 
+	quantum = slide + dir*1
+	collapse = slide -1
+	new_p = (if e || h then collapse else quantum)
+      in
+        bound 151 new_p
     nearBy y ys  = any (\y' -> abs (y-y') < 20) ys
     checkCollision (dir,slide,ps) = if slide `nearBy` (map snd ps) then (-1*dir) else dir
 
