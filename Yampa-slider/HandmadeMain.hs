@@ -1,5 +1,6 @@
 {-# LANGUAGE Arrows #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE MultiWayIf #-}
 
 module
     HandmadeMain
@@ -17,6 +18,7 @@ import qualified Graphics.Gloss.Interface.IO.Game as G
 
 import Buttons
 import GlossInterface
+import Types
 
 import Debug.Trace
 
@@ -29,58 +31,70 @@ mainSF = proc e ->
     r3 <- colControl 0 -< click
     r4 <- colControl 50 -< click
     r5 <- colControl 100 -< click
-    finalPic <- arr drawGame -< concat [r1,r2,r3,r4,r5]
+    finalPic <- arr drawGame -< concatMap (map (\b-> (myColor b,currPos b))) [r1,r2,r3,r4,r5]
     returnA  -< finalPic
   where
     drawGame slide = renderUI 10 slide
    
 
 --build a column of buttons at an x pos
-colControl :: Int -> SF (Event G.Event) [(Color,(Int,Int))]
+colControl :: Int -> SF (Event G.Event) [Block]
 colControl x = proc e ->
   do
     rec
-      b1' <- iPre (0,0) -< b1
-      b2' <- iPre (0,0) -< b2
-      b3' <- iPre (0,0) -< b3
+      b1' <- iBlock -< b1
+      b2' <- iBlock -< b2
+      b3' <- iBlock -< b3
       let bs = [b1',b2',b3']
-      b1 <- buttonControl x (x-40) -< ([b2',b3'],e)
-      b2 <- buttonControl x x -< ([b1',b3'],e)
-      b3 <- buttonControl x (x+40) -< ([b1',b2'],e)
-    returnA -< [(black,b1),(yellow,b2),(azure,b3)]
+      b1 <- buttonControl black x (x-40) -< ([b2',b3'],e)
+      b2 <- buttonControl yellow x x -< ([b1',b3'],e)
+      b3 <- buttonControl azure x (x+40) -< ([b1',b2'],e)
+    returnA -< [b1,b2,b3]
 
 --takes a list of positions of buttons in its row
 --checks for collisions on the y and give updated position
-buttonControl :: Int -> Int -> SF ([(Int,Int)],Event G.Event) (Int,Int)
-buttonControl x y = proc (ps,e) ->
+buttonControl :: Color -> Int -> Int -> SF ([Block],Event G.Event) Block
+buttonControl c x y = proc (ps,e) ->
   do
     rec 
-      hadEvent'  <- iPre False -< hadEvent
-      hadEvent   <- arr (\(e,x) -> if e then not x else x) -< (isEvent e,hadEvent')
+      qState'  <- iPre Quantum -< qState
+      qState   <- arr changeQState -< (isEvent e,qState',ps)
       
       direction' <- iPre 1 -< direction
       sliderV'   <- iPre y -< sliderV
       
       dirC       <- arr sliderDir -< (sliderV',direction')
       direction  <- arr checkCollision -< (dirC,sliderV',ps)
-      sliderV    <- arr sliderPos -< (sliderV',direction,isEvent e,hadEvent)
+      sliderV    <- arr (sliderPos (x,y)) -< (sliderV',direction,qState,ps)
       
-    returnA -< (x,sliderV)
+    returnA -< Block {myColor = c,
+                      origPos = (x,y),
+                      currPos = (x,sliderV)}
   where
+    changeQState (e,q,bs) = if
+      | e && q==Classic -> ReQuant
+      | e && q==Quantum -> Classic
+      | e && q==ReQuant -> Classic
+      | q==ReQuant -> if inOrig bs then Quantum else ReQuant
+      | otherwise -> q
     sliderDir (slide,dir) = if abs slide>150 then (-1*dir) else dir
-    sliderPos (slide,dir,e,h) =
+    sliderPos orig (slide,dir,q,ps) =
       let
-        bound b = min b . max (-b) 
+        bound b p = min b $ max (-b) p
 	quantum = slide + dir*1
-	collapse = slide -1
-	new_p = (if e || h then collapse else quantum)
+	requantize = if slide ==snd orig then slide else slide+1
+	collapse = if nearBy (slide-1) ps then slide else slide -1
+	new_p = if 
+	  | q==Quantum -> quantum
+	  | q==Classic -> collapse
+	  | q==ReQuant -> requantize
       in
-        bound 151 new_p
-    nearBy y ys  = any (\y' -> abs (y-y') < 20) ys
-    checkCollision (dir,slide,ps) = if slide `nearBy` (map snd ps) then (-1*dir) else dir
+        bound 151 (trace (show q) new_p)
+    nearBy y ys  = any (\y' -> abs (y-y') < 20) $ map (snd.currPos) ys
+    checkCollision (dir,slide,ps) = if slide `nearBy` ps then (-1*dir) else dir
 
 playGame :: IO ()
-playGame =
+playGame =do
   do
     playYampa
         (InWindow "Yampa Example" (420, 360) (800, 600))
