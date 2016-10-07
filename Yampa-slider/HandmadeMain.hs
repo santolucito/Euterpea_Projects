@@ -83,7 +83,7 @@ buttonControl c x y = proc (ps,e) ->
         bound b p = min b $ max (-b) p
 	quantum = slide + dir*1
 	requantize = if slide ==snd orig then slide else slide+1
-	collapse = if nearBy (slide-1) ps then slide else slide -1
+	collapse = if nearBy (slide-2) ps then slide else slide -1
 	new_p = if 
 	  | q==Quantum -> quantum
 	  | q==Classic -> collapse
