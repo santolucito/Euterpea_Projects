@@ -10,5 +10,9 @@ cabal-dev
 cabal.sandbox.config
 cabal.config
 
+*.log
+*.pdf
+*.aux
+
 *.mp3
 *~
