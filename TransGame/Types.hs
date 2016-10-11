@@ -2,23 +2,32 @@ module Types where
 
 import FRP.Yampa
 import Graphics.Gloss
+import qualified Graphics.Gloss.Interface.IO.Game as G
 
-data Block = Block {
-   myColor :: Color
-  ,currPos :: (Int,Int)
-  ,origPos :: (Int,Int)
-  }
+import System.Random
+data Player = Player {
+   imageSrc    :: String
+  ,position :: (Int,Int)
+  ,dir      :: Direction
+  ,score    :: Int
+} deriving (Show)
 
-defaultBlock :: Block 
-defaultBlock = Block
-  {myColor = black
-  ,currPos = (0,0)
-  ,origPos = (0,0)}
+data Board = Board {
+   player1 :: Player
+} deriving (Show)
 
-iBlock :: SF Block Block
-iBlock = iPre defaultBlock
+--not likely to change much below here
+data GameState = GameState { board :: Board
+                           , status :: GameStatus
+                           , gen :: StdGen
+                           } deriving (Show)
 
-inOrig :: [Block] -> Bool
-inOrig = all (\b-> currPos b == origPos b)  
+data Direction = Up | Down | Left | Right | None deriving (Eq, Show)
+data GameStatus = InProgress
+                | GameOver
+                deriving (Eq, Show)
 
-data QState = Classic | Quantum | ReQuant deriving (Eq,Show)
+type GameInput = Event Direction
+type InputEvent = G.Event
+
+

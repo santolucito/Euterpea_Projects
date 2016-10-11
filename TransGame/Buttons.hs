@@ -1,9 +1,11 @@
+{-# LANGUAGE RecordWildCards #-}
+
 module Buttons where
 
 import Data.Monoid
 import Graphics.Gloss
 import Graphics.Gloss.Data.Extent
-import Graphics.Gloss.Interface.Pure.Game
+import Graphics.Gloss.Interface.Pure.Game as G
 import Text.Printf
 import Control.Applicative
 
@@ -12,6 +14,9 @@ import Graphics.Gloss.Juicy
 import Data.Maybe
 import System.IO.Unsafe
 
+import Types
+import FRP.Yampa
+
 buttonC0 :: Extent 
 buttonC0  = makeExtent   35     5  200 (150)
 rows :: [Extent]
@@ -19,6 +24,20 @@ rows = repeat (makeExtent (-5) (-35) 0 (-50))
 
 bkgd :: Picture
 bkgd = fromJust $ unsafePerformIO $ loadJuicy "pics/bkgd.png"
+
+
+-- | After parsing the game input and reacting to it we need to draw the
+-- current game state which might have been updated
+drawGame :: SF GameState Picture
+drawGame = arr renderState
+
+renderState :: GameState -> Picture
+renderState s = 
+  bkgd <>
+  getPlayerPic s
+
+getPlayerPic GameState{..} =
+ fromJust$ unsafePerformIO $ loadJuicy $ imageSrc $ player1 board  
 
 -- Button rendering
 
@@ -71,11 +90,11 @@ cornerPoints = map coord2point . cornerCoords
 
 data ButtonClick = Click | Toggle deriving (Show, Eq)
 
-isClickedBy :: Extent -> Event -> Bool
-isClickedBy ex (EventKey (MouseButton LeftButton) Down _ p) = pointInExtent ex p
+isClickedBy :: Extent -> G.Event -> Bool
+isClickedBy ex (G.EventKey (G.MouseButton G.LeftButton) G.Down _ p) = pointInExtent ex p
 isClickedBy _ _ = False
 
-toYampaEvent :: Event -> Maybe ButtonClick
+toYampaEvent :: G.Event -> Maybe ButtonClick
 toYampaEvent e | buttonC0 `isClickedBy` e = Just Click
                | otherwise                = Nothing
 
