@@ -55,5 +55,5 @@ restartGame g s = switch
 -- | When we have lost the game we want to keep the board in a state that
 -- the user reached and show some GameOver message over it
 gameOver :: GameState -> SF a GameState
-gameOver s = arr $ const $ s { status = GameOver }
+gameOver s = arr $ const $ s { _status = GameOver }
 

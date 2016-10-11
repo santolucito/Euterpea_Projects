@@ -1,4 +1,3 @@
-{-# LANGUAGE RecordWildCards #-}
 
 module Buttons where
 
@@ -16,6 +15,8 @@ import System.IO.Unsafe
 
 import Types
 import FRP.Yampa
+
+import Control.Lens
 
 buttonC0 :: Extent 
 buttonC0  = makeExtent   35     5  200 (150)
@@ -36,9 +37,11 @@ renderState s =
   bkgd <>
   getPlayerPic s
 
-getPlayerPic GameState{..} =
- fromJust$ unsafePerformIO $ loadJuicy $ imageSrc $ player1 board  
-
+getPlayerPic g = let
+   p = fromJust$ unsafePerformIO $ loadJuicy $ (view (board.player1.imageSrc) g)
+ in
+   translate 0 (fromIntegral (view (board.player1.position._1) g)) p
+     
 -- Button rendering
 
 renderUI :: Int 
