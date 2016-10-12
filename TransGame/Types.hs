@@ -2,7 +2,7 @@
 
 module Types where
 
-import FRP.Yampa
+--import FRP.Yampa
 import qualified Graphics.Gloss.Interface.IO.Game as G
 
 import System.Random
@@ -35,7 +35,8 @@ makeLenses ''GameState
 makeLenses ''Board
 makeLenses ''Player
 
-type GameInput = Event Direction
+type GameInput = Direction
+--type GameInput = Event Direction
 type InputEvent = G.Event
 
 

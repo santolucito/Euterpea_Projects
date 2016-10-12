@@ -1,3 +1,6 @@
+{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE Arrows #-}
+
 module Main where
 
 import HandmadeMain
@@ -5,7 +8,7 @@ import Types
 import Buttons
 import GlossInterface
 
-import FRP.Yampa (Event(..), SF, arr, tag, (>>>))
+import FRP.Yampa (Event(..), SF, arr, tag, (>>>), returnA, dHold)
 import qualified Graphics.Gloss.Interface.IO.Game as G
 
 import System.Random (newStdGen, StdGen)
@@ -14,13 +17,17 @@ import System.Random (newStdGen, StdGen)
 -- the first thing we want to do is to parse the Gloss Event into something
 -- we are happy to work with (Direction data type)
 parseInput :: SF (Event InputEvent) GameInput
-parseInput = arr $ \event ->
-  case event of
-    Event (G.EventKey (G.SpecialKey G.KeyUp) G.Down _ _) -> event `tag` Types.Up
-    Event (G.EventKey (G.SpecialKey G.KeyDown) G.Down _ _) -> event `tag` Types.Down
-    Event (G.EventKey (G.SpecialKey G.KeyLeft) G.Down _ _) -> event `tag` Types.Left
-    Event (G.EventKey (G.SpecialKey G.KeyRight) G.Down _ _) -> event `tag` Types.Right
-    _ -> event `tag` None
+parseInput = proc e -> do 
+  keys <- dHold (G.EventResize (0,0)) -< e
+  keys'<- arr k -< keys
+  returnA -< keys'
+ where
+  k event = case event of 
+    (G.EventKey (G.SpecialKey G.KeyUp) G.Down _ _) -> Types.Up
+    (G.EventKey (G.SpecialKey G.KeyDown) G.Down _ _) -> Types.Down
+    (G.EventKey (G.SpecialKey G.KeyLeft) G.Down _ _) -> Types.Left
+    (G.EventKey (G.SpecialKey G.KeyRight) G.Down _ _) -> Types.Right
+    _ -> None
 
 
 -- | Our main signal function which is responsible for handling the whole

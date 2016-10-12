@@ -17,6 +17,7 @@ import Types
 import FRP.Yampa
 
 import Control.Lens
+import Control.Arrow
 
 buttonC0 :: Extent 
 buttonC0  = makeExtent   35     5  200 (150)
@@ -39,8 +40,10 @@ renderState s =
 
 getPlayerPic g = let
    p = fromJust$ unsafePerformIO $ loadJuicy $ (view (board.player1.imageSrc) g)
+   (x,y) = mapTup fromIntegral ((view (board.player1.position)) g)
+   mapTup f (a1, a2) = (f a1, f a2)
  in
-   translate 0 (fromIntegral (view (board.player1.position._1) g)) p
+   translate x y p
      
 -- Button rendering
 

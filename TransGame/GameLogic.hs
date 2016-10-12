@@ -1,11 +1,11 @@
-{-# TemplateHaskell #-}
+--  LANGUAGE TemplateHaskell #-}
 
 module GameLogic where
 
 import System.Random (StdGen)
-
-import Types
-import FRP.Yampa
+import Prelude hiding (Left,Right)
+import Types 
+-- import FRP.Yampa
 
 import Control.Lens
 
@@ -30,7 +30,16 @@ isGameOver s = False
 update :: (GameState, GameInput) -> GameState
 update (gameState, input) =
     case input of
-      Event direction -> over (board.player1.position._1) (+1) gameState
-      _ -> id gameState
+      None -> id gameState
+      dir -> moveP dir gameState
 
-
+moveP :: Direction -> GameState -> GameState
+moveP d g = over (board.player1.position) (appT updateF) g
+ where
+  updateF = case d of
+   Down  -> (0,-1)
+   Up    -> (0,1)
+   Left  -> (-1,0)
+   Right -> (1,0)
+   _     -> (0,0)
+  appT (dx,dy) (x,y) = (x+dx,y+dy)
