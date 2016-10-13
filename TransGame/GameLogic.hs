@@ -13,17 +13,16 @@ import Control.Lens
 import Codec.Picture hiding (imageData)
 --import Graphics.Gloss.Juicy
 
-import System.IO.Unsafe
 import Debug.Trace
 
-initialState :: StdGen -> GameState 
-initialState g = GameState { 
-   _board = emptyBoard
+initialState :: StdGen -> Image PixelRGB8 -> GameState 
+initialState g i = GameState { 
+   _board = emptyBoard i
   ,_status = InProgress
   ,_gen = g
 }
 
-emptyBoard = Board {
+emptyBoard i = Board {
  _player1 = Player {
    --imageSrc =  "pics/stand_east.png"
    _imageSrc =  "pics/east.gif"
@@ -32,11 +31,9 @@ emptyBoard = Board {
   ,_score    = 0},
  _walls = smallRoom,
  _image = "pics/bkgd.png",
- _imageData = either whiteImage convertRGB8 $ unsafePerformIO $ readImage "pics/bkgd.png"
+ _imageData = i 
 }
 
-whitePixel = PixelRGB8 0 0 0
-whiteImage = (\_-> generateImage (\_ _ -> whitePixel) 1 1)
 
 isGameOver :: GameState -> Bool
 isGameOver s = False
@@ -54,7 +51,7 @@ collision :: GameState -> Bool
 collision g = let
   c = pixelAtFromCenter (view (board.imageData) g) x y
   (x,y) = view (board.player1.position) g
- in (traceShow c c) == whitePixel
+ in c == whitePixel
 
 pixelAtFromCenter :: Pixel a => Image a -> Int -> Int -> a
 pixelAtFromCenter i x y = let

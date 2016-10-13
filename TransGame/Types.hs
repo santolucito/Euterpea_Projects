@@ -11,17 +11,8 @@ import System.Random
 import Control.Lens
 import qualified Data.Map as M
 import Codec.Picture
-  
-data A = A{
-  _myfield :: Int
-}
-data B = B{
-  x_myfield :: Int
-}
 
-makeLenses ''A
-makeLenses ''B
-    
+
 data Player = Player {
    _imageSrc :: String
   ,_position :: (Int,Int)
@@ -33,10 +24,11 @@ data Board = Board {
    _player1  :: Player
   ,_walls    :: [[Tile]]
   ,_image    :: String
-  ,_imageData:: Image PixelRGB8 
+  ,_imageData:: Image PixelRGB8
 } 
 
-
+whitePixel = PixelRGB8 0 0 0
+whiteImage = (\_-> generateImage (\_ _ -> whitePixel) 1 1)
 
 data PosStatus = Open | Obstacle
 
@@ -64,5 +56,4 @@ makeLenses ''Player
 type GameInput = Direction
 --type GameInput = Event Direction
 type InputEvent = G.Event
-
 

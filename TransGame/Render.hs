@@ -1,5 +1,5 @@
 
-module Buttons where
+module Render where
 
 import Data.Monoid
 import Graphics.Gloss
@@ -31,7 +31,7 @@ renderState s =
 
 placeBkgd :: GameState -> Picture
 placeBkgd g = let
-   bkgd = fromJust $ unsafePerformIO $ loadJuicy (view (board.image) g) 
+   bkgd = fromImageRGB8 (view (board.imageData) g) 
    p = view (board.player1) g
    (x,y) = mapTup fromIntegral (view position p)
  in
