@@ -55,7 +55,7 @@ playGame =do
     playYampa
         (G.InWindow "Yampa Example" (420, 360) (800, 600))
         G.white
-        30
+        60
         (mainSF g bs)
 
 main = playGame

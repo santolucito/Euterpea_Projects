@@ -42,6 +42,6 @@ getPlayerPic g = let
    p = fromJust$ unsafePerformIO $ loadJuicy $ (view (board.player1.imageSrc) g)
    (x,y) = mapTup fromIntegral ((view (board.player1.position)) g)
  in
-   translate x y p
+   translate 0 0  p
      
 mapTup f (a1, a2) = (f a1, f a2)
