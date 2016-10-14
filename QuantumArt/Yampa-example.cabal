@@ -1,8 +1,8 @@
-name:                Yampa-example
+name:                QuantumArt
 version:             0.1.0.0
 license:             PublicDomain
-author:              Hidenori Azuma
-maintainer:          as.capabl@gmail.com
+author:              Mark Santolucito
+maintainer:          mark.santolucito@yale.edu
 category:            FRP
 build-type:          Simple
 cabal-version:       >=1.10
