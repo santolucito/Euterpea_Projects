@@ -1,3 +1,4 @@
 a frp game
 
 cabal run TransGame
+hp2ps -e8in -c TransGame

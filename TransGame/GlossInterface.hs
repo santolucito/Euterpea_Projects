@@ -8,6 +8,7 @@ import Graphics.Gloss (Color, Display, Picture(Blank))
 import qualified Graphics.Gloss.Interface.IO.Game as G
 
 import Data.IORef
+import System.Mem
 
 playYampa :: 
     Display ->
@@ -25,7 +26,7 @@ playYampa display color frequency network =
         (return NoEvent)
         (\_ changed pic -> 
           do
-            if changed then vPic `writeIORef` pic else return ()
+            if changed then vPic `atomicWriteIORef` pic else return ()
             return False)
         network
     

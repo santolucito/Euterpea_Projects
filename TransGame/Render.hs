@@ -31,7 +31,8 @@ renderState s =
 
 placeBkgd :: GameState -> Picture
 placeBkgd g = let
-   bkgd = fromImageRGB8 (view (board.imageData) g) 
+   --bkgd = fromImageRGB8 (view (board.imageData) g) 
+   bkgd = fromJust$ unsafePerformIO $ loadJuicy $ "pics/bkgd.png"
    p = view (board.player1) g
    (x,y) = mapTup fromIntegral (view position p)
  in
@@ -41,6 +42,6 @@ getPlayerPic g = let
    p = fromJust$ unsafePerformIO $ loadJuicy $ (view (board.player1.imageSrc) g)
    (x,y) = mapTup fromIntegral ((view (board.player1.position)) g)
  in
-   translate 0 0 p
+   translate x y p
      
 mapTup f (a1, a2) = (f a1, f a2)
