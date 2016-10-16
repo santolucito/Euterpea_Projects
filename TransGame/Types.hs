@@ -12,37 +12,34 @@ import Control.Lens
 import qualified Data.Map as M
 import Codec.Picture
 
-
 data Player = Player {
-   _imageSrc :: String
-  ,_position :: (Int,Int)
-  ,_dir      :: Direction
-  ,_score    :: Int
+   _position   :: (Int,Int)
+  ,_dir        :: Direction
+  ,_score      :: Int
 } deriving (Show)
 
 data Board = Board {
    _player1  :: Player
-  ,_walls    :: [[Tile]]
-  ,_image    :: String
-  ,_imageData:: Image PixelRGB8
+  ,_levelName:: String
 } 
 
-whitePixel = PixelRGB8 0 0 0
-whiteImage = (\_-> generateImage (\_ _ -> whitePixel) 1 1)
+data Images = Images {
+  _playerImgs :: ImageMap
+ ,_levelImgs :: ImageMap 
+ }
+type ImageMap = M.Map String (Image PixelRGBA8,G.Picture)
 
-data PosStatus = Open | Obstacle
-
-data Tile = Tile { 
-   _imageSrc :: String
-  ,_position :: (Int,Int) --center
-  ,_size     :: Int
-} deriving (Show)
-
---not likely to change much below here
 data GameState = GameState { _board :: Board
                            , _status :: GameStatus
                            , _gen :: StdGen
+			   , _images :: Images
                            }
+
+
+blackPixel = PixelRGB8 0 0 0
+blackAPixel = PixelRGBA8 0 0 0 255
+whitePixel = PixelRGB8 255 255 255
+blackImage = (\_-> generateImage (\_ _ -> blackAPixel) 10 10)
 
 data Direction = Up | Down | Left | Right | None deriving (Eq, Show)
 data GameStatus = InProgress
@@ -52,6 +49,7 @@ data GameStatus = InProgress
 makeLenses ''GameState
 makeLenses ''Board
 makeLenses ''Player
+makeLenses ''Images
 
 type GameInput = Direction
 --type GameInput = Event Direction

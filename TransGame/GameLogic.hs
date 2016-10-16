@@ -6,32 +6,27 @@ module GameLogic where
 import System.Random (StdGen)
 import Prelude hiding (Left,Right)
 import Types 
--- import FRP.Yampa
-import LevelMaps
+import ImageIO
 
 import Control.Lens
-import Codec.Picture hiding (imageData)
---import Graphics.Gloss.Juicy
+import Codec.Picture 
 
 import Debug.Trace
 
-initialState :: StdGen -> Image PixelRGB8 -> GameState 
-initialState g i = GameState { 
-   _board = emptyBoard i
+initialState :: StdGen -> Images -> GameState 
+initialState g is = GameState { 
+   _board = emptyBoard is
   ,_status = InProgress
   ,_gen = g
+  ,_images = is
 }
 
-emptyBoard i = Board {
+emptyBoard is = Board {
  _player1 = Player {
-   --imageSrc =  "pics/stand_east.png"
-   _imageSrc =  "pics/east.gif"
-  ,_position = (0,0)
+   _position = (0,0)
   ,_dir      = Types.Left
   ,_score    = 0},
- _walls = smallRoom,
- _image = "pics/bkgd.png",
- _imageData = i 
+ _levelName = "mazeCircle"
 }
 
 
@@ -49,24 +44,30 @@ move d g = if collision (makeMove d g) then g else makeMove d g
 
 collision :: GameState -> Bool
 collision g = let
-  c = pixelAtFromCenter (view (board.imageData) g) x y
   (x,y) = view (board.player1.position) g
- in c == whitePixel
+  c = pixelAtFromCenter (getLevelImg g) x y
+ in c == blackAPixel
 
-pixelAtFromCenter :: Pixel a => Image a -> Int -> Int -> a
+pixelAtFromCenter :: Image PixelRGBA8 -> Int -> Int -> PixelRGBA8
 pixelAtFromCenter i x y = let
   h = imageHeight i 
   w = imageWidth i 
+  x' = (w `div` 2) + x
+  y' = (h `div` 2) + (-y)
  in
-  pixelAt i (x+(w `div` 2)) (y+(h `div` 2))
+  pixelAt i x' y'
+  --whitePixel
 
 makeMove :: Direction -> GameState -> GameState
-makeMove d g = over (board.player1.position) (appT updateF) g
- where
-  updateF = case d of
-   Down  -> (0,-1)
-   Up    -> (0,1)
-   Left  -> (-1,0)
-   Right -> (1,0)
-   _     -> (0,0)
-  appT (dx,dy) (x,y) = (x+dx,y+dy)
+makeMove d g = let 
+    updateF = case d of
+     Down  -> (0,-1)
+     Up    -> (0,1)
+     Left  -> (-1,0)
+     Right -> (1,0)
+     _     -> (0,0)
+    appT (dx,dy) (x,y) = (x+dx,y+dy)
+    newPos = over (board.player1.position) (appT updateF) g
+    newDir = set (board.player1.dir) d newPos
+  in
+    newDir

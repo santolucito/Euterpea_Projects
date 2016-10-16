@@ -7,12 +7,12 @@ import HandmadeMain
 import Types
 import Render 
 import GlossInterface
+import ImageIO
 
-import FRP.Yampa (Event(..), SF, arr, tag, (>>>), returnA, dHold)
+import FRP.Yampa (Event(..), SF, arr, (>>>), returnA, dHold)
 import qualified Graphics.Gloss.Interface.IO.Game as G
 
 import System.Random (newStdGen, StdGen)
-import Codec.Picture
 
 import System.Exit
 import System.IO.Unsafe
@@ -39,8 +39,8 @@ parseInput = proc e -> do
 -- game process, starting from parsing the input, moving to the game logic
 -- based on that input and finally drawing the resulting game state to
 -- Gloss' Picture
-mainSF :: StdGen -> Image PixelRGB8 -> SF (Event InputEvent) G.Picture
-mainSF g bs = parseInput >>> wholeGame g bs >>> drawGame
+mainSF :: StdGen -> Images -> SF (Event InputEvent) G.Picture
+mainSF g is = parseInput >>> wholeGame g is >>> drawGame
 
 
 -- | load a random numbe gen
@@ -50,12 +50,14 @@ playGame :: IO ()
 playGame =do
   do
     g <- newStdGen
-    boardImages <- readImage "pics/bkgd.png"
-    let bs = either whiteImage convertRGB8 $ boardImages
+
+    levelImgs <- makeLevelImgMap
+    playerImgs <- makePlayerImgMap
+    
     playYampa
         (G.InWindow "Yampa Example" (420, 360) (800, 600))
         G.white
         60
-        (mainSF g bs)
+        (mainSF g (Images {_playerImgs=playerImgs, _levelImgs=levelImgs}))
 
 main = playGame
