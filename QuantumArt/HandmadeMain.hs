@@ -26,11 +26,11 @@ mainSF :: SF (Event G.Event) Picture
 mainSF = proc e ->
   do
     click <- arr (filterE (isJust. toYampaEvent)) -< e 
-    r1 <- colControl (-100) -< click
-    r2 <- colControl (-50) -< click
-    r3 <- colControl 0 -< click
-    r4 <- colControl 50 -< click
-    r5 <- colControl 100 -< click
+    r1 <- colControl (-140) (-100) -< click
+    r2 <- colControl (-70) (-50) -< click
+    r3 <- colControl 0 0 -< click
+    r4 <- colControl 70 50 -< click
+    r5 <- colControl 140 100 -< click
     finalPic <- arr drawGame -< concatMap (map (\b-> (myColor b,currPos b))) [r1,r2,r3,r4,r5]
     returnA  -< finalPic
   where
@@ -38,17 +38,17 @@ mainSF = proc e ->
    
 
 --build a column of buttons at an x pos
-colControl :: Int -> SF (Event G.Event) [Block]
-colControl x = proc e ->
+colControl :: Int -> Int -> SF (Event G.Event) [Block]
+colControl x y = proc e ->
   do
     rec
       b1' <- iBlock -< b1
       b2' <- iBlock -< b2
       b3' <- iBlock -< b3
       let bs = [b1',b2',b3']
-      b1 <- buttonControl black x (x-40) -< ([b2',b3'],e)
-      b2 <- buttonControl yellow x x -< ([b1',b3'],e)
-      b3 <- buttonControl azure x (x+40) -< ([b1',b2'],e)
+      b1 <- buttonControl black x (y-40) -< ([b2',b3'],e)
+      b2 <- buttonControl azure x y -< ([b1',b3'],e)
+      b3 <- buttonControl black x (y+40) -< ([b1',b2'],e)
     returnA -< [b1,b2,b3]
 
 --takes a list of positions of buttons in its row
