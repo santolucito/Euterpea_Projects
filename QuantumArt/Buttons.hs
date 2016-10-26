@@ -8,7 +8,7 @@ import Text.Printf
 import Control.Applicative
 
 buttonC0 :: Extent 
-buttonC0  = makeExtent   35     5  200 (150)
+buttonC0  = makeExtent   (-200)   (-230)  25 (-25)
 rows :: [Extent]
 rows = repeat (makeExtent (-5) (-35) 0 (-50))
 
@@ -20,9 +20,9 @@ renderUI :: Int
 renderUI count0 locs = 
   let
     s = zip rows locs 
-    ss = mconcat $ map (\(widget,(c,(x,y))) -> translate (fromIntegral x) (fromIntegral y) (renderButton widget c (show y))) s
+    ss = mconcat $ map (\(widget,(c,(x,y))) -> translate (fromIntegral x) (fromIntegral y) (renderSlider widget c (show y))) s
   in
-   renderButton buttonC0 azure "Motion" <> 
+   renderButton buttonC0 white "Motion" <> 
    ss
     
 unify :: Int -> Maybe Int -> String
@@ -31,8 +31,15 @@ unify n (Just n') | n == n'   = show n
                   | otherwise = printf "%d != %d" n n'
 
 
+renderSlider:: Extent -> Color -> String -> Picture
+renderSlider ex c s = color c bg -- <> color white fg
+  where
+    --bg = polygon (cornerPoints ex)
+    --bg = circle (20)
+    bg = thickCircle 10 (20) --cornerPoints ex)
+
 renderButton :: Extent -> Color -> String -> Picture
-renderButton ex c s = color c bg <> color white fg
+renderButton ex c s = color c bg  <> color black fg
   where
     bg = polygon (cornerPoints ex)
     fg = translate x y

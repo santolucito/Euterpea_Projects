@@ -31,7 +31,12 @@ mainSF = proc e ->
     r3 <- colControl 0 0 -< click
     r4 <- colControl 70 50 -< click
     r5 <- colControl 140 100 -< click
-    finalPic <- arr drawGame -< concatMap (map (\b-> (myColor b,currPos b))) [r1,r2,r3,r4,r5]
+    r6 <- colControl 210 50 -< click
+    r7 <- colControl (-210) (-50) -< click
+    r8 <- colControl 280 (0) -< click
+    r9 <- colControl (-280) (0) -< click
+    finalPic <- arr drawGame -< concatMap (map (\b-> (myColor b,currPos b))) [r1,r2,r3,r4,r5,r6,r7,r8,r9]
+    --finalPic <- arr drawGame -< concatMap (map (\b-> (myColor b,currPos b))) [r1,r2,r3,r4,r5]
     returnA  -< finalPic
   where
     drawGame slide = renderUI 10 slide
@@ -46,9 +51,9 @@ colControl x y = proc e ->
       b2' <- iBlock -< b2
       b3' <- iBlock -< b3
       let bs = [b1',b2',b3']
-      b1 <- buttonControl black x (y-40) -< ([b2',b3'],e)
-      b2 <- buttonControl azure x y -< ([b1',b3'],e)
-      b3 <- buttonControl black x (y+40) -< ([b1',b2'],e)
+      b1 <- buttonControl white x (y-40) -< ([b2',b3'],e)
+      b2 <- buttonControl yellow x y -< ([b1',b3'],e)
+      b3 <- buttonControl cyan x (y+40) -< ([b1',b2'],e)
     returnA -< [b1,b2,b3]
 
 --takes a list of positions of buttons in its row
@@ -98,8 +103,8 @@ playGame =do
   do
     playYampa
         (InWindow "Yampa Example" (420, 360) (800, 600))
-        white
-        30
+        black
+	30
         mainSF
 
 {-instance ArrowChoice SF where
