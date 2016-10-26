@@ -46,7 +46,7 @@ collision :: GameState -> Bool
 collision g = let
   (x,y) = view (board.player1.position) g
   c = pixelAtFromCenter (getLevelImg g) x y
- in c == blackAPixel
+ in c <= blackAPixel
 
 pixelAtFromCenter :: Image PixelRGBA8 -> Int -> Int -> PixelRGBA8
 pixelAtFromCenter i x y = let

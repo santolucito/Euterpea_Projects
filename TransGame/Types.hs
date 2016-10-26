@@ -37,7 +37,7 @@ data GameState = GameState { _board :: Board
 
 
 blackPixel = PixelRGB8 0 0 0
-blackAPixel = PixelRGBA8 0 0 0 255
+blackAPixel = PixelRGBA8 90 90 90 255
 whitePixel = PixelRGB8 255 255 255
 blackImage = (\_-> generateImage (\_ _ -> blackAPixel) 10 10)
 

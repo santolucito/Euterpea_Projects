@@ -10,8 +10,9 @@ import qualified Graphics.Gloss.Interface.IO.Game as G
 import Control.Lens
 import Debug.Trace
 
-levelImgSrcs = map ("pics/"++) ["mazeCircle.png"]
 playerImgSrcs = map ("pics/"++) ["Up.gif","Right.gif","Down.gif","Left.gif"]
+-- for procedurally generated images, make level list with some code
+levelImgSrcs = map ("pics/"++) ["mazeCircle.png"]
 
 makePlayerImgMap :: IO(ImageMap)
 makePlayerImgMap = makeImgMap playerImgSrcs
