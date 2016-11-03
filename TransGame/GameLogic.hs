@@ -49,8 +49,12 @@ move d g = if collision (makeMove d g) then g else makeMove d g
 collision :: GameState -> Bool
 collision g = let
   (x,y) = view (board.player1.position) g
-  c = pixelAtFromCenter (getLevelImg g) x y
- in c == blackAPixel
+  xsize = 5
+  ysize = 8
+  playerLocs = [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
+  boardPixels = map (\(x,y) -> pixelAtFromCenter (getLevelImg g) x y) playerLocs
+ in 
+  any (==blackAPixel) boardPixels
 
 pixelAtFromCenter :: Image PixelRGBA8 -> Int -> Int -> PixelRGBA8
 pixelAtFromCenter i x y = let
