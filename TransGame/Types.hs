@@ -16,6 +16,8 @@ data Player = Player {
    _position   :: (Int,Int)
   ,_dir        :: Direction
   ,_score      :: Int
+  ,_aliveTime  :: Int
+  ,_inMotion   :: Bool
 } deriving (Show)
 
 data Board = Board {

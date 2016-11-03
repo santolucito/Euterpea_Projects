@@ -25,6 +25,7 @@ emptyBoard is = Board {
  _player1 = Player {
    _position = (0,0)
   ,_dir      = Types.Left
+  ,_aliveTime= 0
   ,_score    = 0},
  _levelName = "mazeCircle"
 }
@@ -33,11 +34,14 @@ emptyBoard is = Board {
 isGameOver :: GameState -> Bool
 isGameOver s = False
 
+
 update :: (GameState, GameInput) -> GameState
-update (gameState, input) =
-    case input of
-      None -> id gameState
-      dir -> move dir gameState
+update (gameState, input) = tick$ case input of
+  None -> set (board.player1.inMotion) False gameState
+  dir -> move dir gameState
+
+tick :: GameState -> GameState
+tick = over (board.player1.aliveTime) (+1) 
 
 move :: Direction -> GameState -> GameState
 move d g = if collision (makeMove d g) then g else makeMove d g
@@ -70,4 +74,4 @@ makeMove d g = let
     newPos = over (board.player1.position) (appT updateF) g
     newDir = set (board.player1.dir) d newPos
   in
-    newDir
+    set (board.player1.inMotion) True newDir

@@ -11,7 +11,10 @@ import Control.Lens
 import Debug.Trace
 
 levelImgSrcs = map ("pics/"++) ["mazeCircle.png"]
-playerImgSrcs = map ("pics/"++) ["Up.gif","Right.gif","Down.gif","Left.gif"]
+playerImgSrcs = let
+  f d = map (\x-> d++"/frame_"++(show x)++"_delay-0.06s.gif") [0..9]
+ in
+  map ("pics/"++) (concatMap f  ["Right", "Down", "Left", "Up"])
 
 makePlayerImgMap :: IO(ImageMap)
 makePlayerImgMap = makeImgMap playerImgSrcs
@@ -30,15 +33,28 @@ makeImgMap is = do
 
 getPlayerPic :: ImageMap -> Player -> G.Picture
 getPlayerPic playerImgs p= let
+  time = view aliveTime p
+  t = if view inMotion p then time else 0 
   d = view dir p
-  i = playerImgs M.! ("pics/"++(show d)++".gif")
+  i = playerImgs M.! ("pics/"++(getGifFrame t 9 $ show d))
  in
   snd i
 
 getLevelImg :: GameState -> Image PixelRGBA8
 getLevelImg g = let
-  is = view (images.levelImgs) g
+  allImgs = view (images.levelImgs) g
   iName =  ("pics/"++(view (board.levelName) g)++".png")
-  i = is M.! iName
+  i = allImgs M.! iName
  in
   fst i
+
+--Assume every gif (test.gif) has been expanded to
+--test_0.gif, test_1.gif, etc
+--this is of course a terrible idea, but it should work
+getGifFrame :: Int -> Int -> FilePath -> FilePath
+getGifFrame time numFrames dir = let
+  thisFrame = (floor (fromIntegral time / 4)) `mod` numFrames
+ in
+  dir ++"/frame_" ++ (show thisFrame) ++ "_delay-0.06s.gif"
+  
+  
