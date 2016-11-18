@@ -28,7 +28,7 @@ renderState s =
 
 placeBkgd :: GameState -> Picture
 placeBkgd g = let
-   bkgd = fromJust$ unsafePerformIO $ loadJuicy $ "pics/mazeCircle.png"
+   bkgd = fromJust$ unsafePerformIO $ loadJuicy $ "pics/mazeCircleBig.png"
    p = view (board.player1) g
    (x,y) = mapTup fromIntegral (view position p)
  in

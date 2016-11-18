@@ -27,7 +27,7 @@ emptyBoard is = Board {
   ,_dir      = Types.Left
   ,_aliveTime= 0
   ,_score    = 0},
- _levelName = "mazeCircle"
+ _levelName = "mazeCircleBig"
 }
 
 

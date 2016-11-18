@@ -66,11 +66,40 @@
 % Some very useful LaTeX packages include:
 % (uncomment the ones you want to load)
 
+\usepackage{multirow}
+\usepackage{color}
+\usepackage{xcolor}
+\usepackage{graphicx}
 \usepackage{listings}
+
 \lstset{
-  language=Python,
-  belowskip=2pt,
-  aboveskip=2pt}
+  language=haskell,
+  basicstyle=\footnotesize\ttfamily,breaklines=true,
+  frame=none,
+  literate=
+    {->}{{$\rightarrow\;$}}1
+    {=>}{{$\Rightarrow\;$}}1
+    {++}{{\code{++}}}1
+    {~}{{\ }}1
+    {\\dollar}{{$\$$\;}}1,
+  % Style for (listings') identifiers
+  identifierstyle={\ttfamily\color{black}},
+  % Style for declaration keywords
+  keywordstyle=[1]{\ttfamily\color{violet}},
+  % Style for gallina keywords
+  keywordstyle=[2]{\ttfamily\color{green}},
+  % Style for sorts keywords
+  keywordstyle=[3]{\ttfamily\color{blue}},
+  % Style for tactics keywords
+  keywordstyle=[4]{\ttfamily\color{blue}},
+  % Style for terminators keywords
+  keywordstyle=[5]{\ttfamily\color{red}},
+  morekeywords=[1]{class, instance},
+  morekeywords=[2]{where},
+  morekeywords=[3]{Maybe},
+  morekeywords=[4]{main},
+  morekeywords=[6]{do, proc, last, first, try, idtac, repeat},
+}
 
 % *** MISC UTILITY PACKAGES ***
 %
@@ -438,3 +467,4 @@ Email: mark.santolucito@yale.edu}
 
 % that's all folks
 \end{document}
+\grid
