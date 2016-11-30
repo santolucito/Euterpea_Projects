@@ -1,0 +1,47 @@
+\begin{thebibliography}{6}
+\providecommand{\natexlab}[1]{#1}
+\providecommand{\url}[1]{\texttt{#1}}
+\expandafter\ifx\csname urlstyle\endcsname\relax
+  \providecommand{\doi}[1]{doi: #1}\else
+  \providecommand{\doi}{doi: \begingroup \urlstyle{rm}\Url}\fi
+
+\bibitem[Duke()]{isosteeple}
+K.~Duke.
+\newblock Let's hear it for soundfest.
+\newblock URL \url{https://www.amherst.edu/news/campusbuzz/node/462685}.
+
+\bibitem[Finkbeiner et~al.(2016)Finkbeiner, Klein, Piskac, and
+  Santolucito]{pldi}
+B.~Finkbeiner, F.~Klein, R.~Piskac, and M.~Santolucito.
+\newblock Synthesizing functional reactive programs.
+\newblock Under Submission - Draft available on request, 2016.
+
+\bibitem[Hudak et~al.(2015)Hudak, Quick, Santolucito, and
+  Winograd{-}Cort]{FARM2015}
+P.~Hudak, D.~Quick, M.~Santolucito, and D.~Winograd{-}Cort.
+\newblock Real-time interactive music in haskell.
+\newblock In \emph{Proceedings of the 3rd {ACM} {SIGPLAN} International
+  Workshop on Functional Art, Music, Modelling and Design, FARM@ICFP 2015,
+  Vancouver, BC, Canada, September 5, 2015}, pages 15--16, 2015.
+\newblock URL \url{http://doi.acm.org/10.1145/2808083.2808087}.
+
+\bibitem[Santolucito(2013)]{GLSArt}
+M.~Santolucito.
+\newblock Instamirror.
+\newblock In \emph{Game Learning and Society, GLS 9.0}, 2013.
+
+\bibitem[Santolucito(2016)]{github}
+M.~Santolucito.
+\newblock Euterpea projects.
+\newblock
+  \url{https://github.com/santolucito/Euterpea_Projects/tree/master/QuantumArt},
+  2016.
+
+\bibitem[Santolucito et~al.(2015)Santolucito, Quick, and Hudak]{ICMC2015}
+M.~Santolucito, D.~Quick, and P.~Hudak.
+\newblock Media modules: Intermedia systems in a pure functional paradigm.
+\newblock In \emph{41st International Computer Music Conference, {ICMC} 2015,
+  Denton, TX, USA, September 25 - October 1, 2015}, 2015.
+\newblock URL \url{http://hdl.handle.net/2027/spo.bbp2372.2015.077}.
+
+\end{thebibliography}
