@@ -1,0 +1,26 @@
+Tomoya Yamaguchi, Tomoyuki Kaga, Alexandre Donzé and Sanjit A Seshia#Combining Requirement Mining, Software Model Checking, and Simulation-Based Verification for Industrial Automotive Systems
+Opeoluwa Matthews, Jesse Bingham and Daniel Sorin#Verifiable Hierarchical Protocols with Network Invariants on Parametric Systems
+Guy Katz, Clark Barrett, Cesare Tinelli, Andrew Reynolds and Liana Hadarean#Lazy Proofs for DPLL(T)-Based SMT Solvers
+Ofer Guthmann, Ofer Strichman and Anna Trostanetski#Minimal unsatisfiable core extraction for SMT
+Alexander Nadel#Routing under Constraints
+Roderick Bloem, Robert Koenighofer, Ingo Pill and Franz Roeck#Synthesizing Adaptive Test Strategies from Temporal Logic Specifications
+Pavel Parizek#Hybrid Partial Order Reduction with Under-Approximate Dynamic Points-To and Determinacy Information
+Matthew Naylor, Simon Moore and Alan Mujumdar#A Consistency Checker for Memory Subsystem Traces
+Karsten Scheibler, Felix Neubauer, Ahmed Mahdi, Martin Fränzle, Tino Teige, Tom Bienmüller, Detlef Fehrer and Bernd Becker#Accurate ICP-based Floating-Point Reasoning
+Hossein Hojjat, Philipp Ruemmer, Jedidiah McClurg, Pavol Černý and Nate Foster#Optimizing Horn Solvers for Network Repair
+Brian Campbell and Ian Stark#Extracting Behaviour from an Executable Instruction Set Model
+Rohit Singh and Armando Solar-Lezama#SWAPPER: A Framework for Automatic Generation of Formula Simplifiers based on Conditional Rewrite Rules
+David Rager, Jo Ebergen, Dmitry Nadezhin, Austin Lee, Cuong Chau and Ben Selfridge#Formal Verification of Division and Square Root Implementations, an Oracle Report
+Jaideep Ramachandran and Thomas Wahl#Integrating Proxy Theories and Numeric Model Lifting for Floating-Point Arithmetic
+Dejan Jovanović and Bruno Dutertre#Property-Directed k-Induction
+Yen-Sheng Ho, Pankaj Chauhan, Pritam Roy, Alan Mishchenko and Robert Brayton#Efficient Uninterpreted Function Abstraction and Refinement for Word-level Model Checking
+Guillaume Baudart, Timothy Bourke and Marc Pouzet#Soundness of the Quasi-Synchronous Abstraction
+Ermenegildo Tomasco, Truc Nguyen Lam, Omar Inverso, Bernd Fischer, Salvatore La Torre and Gennaro Parlato#Lazy Sequentialization for TSO and PSO via Shared Memory Abstractions
+Alastair Reid#Trustworthy Specifications of ARM v8-A and v8-M System Level Architecture
+Dan Ghica and Achim Jung#Categorical Semantics of Digital Circuits
+Alain Mebsout and Cesare Tinelli#Proof Certificates for SMT-based Model Checkers for Infinite-state Systems
+Eugene Goldberg#Equivalence Checking By Logic Relaxation
+Amr Sayed-Ahmed, Daniel Grosse, Mathias Soeken and Rolf Drechsler#Equivalence Checking Using Gröbner Bases
+Kenneth McMillan#Modular Specification and Verification of a Cache-Coherent Interface
+Susmit Jha, Vasumathi Raman and Sanjit A. Seshia#On ∃ ∀ ∃! Solving: A Case Study on Automated Synthesis of Magic Card Tricks
+Gianpiero Cabodi, Paolo E. Camurati, Marco Palena, Paolo Pasini and Danilo Vendraminetto#Reducing Interpolant Circuit Size by Ad Hoc Logic Synthesis and SAT-Based Weakening
