@@ -15,6 +15,8 @@ import ImageIO
 
 import Control.Lens
 
+import Settings
+
 -- | After parsing the game input and reacting to it we need to draw the
 -- current game state which might have been updated
 drawGame :: SF GameState Picture
@@ -28,7 +30,7 @@ renderState s =
 
 placeBkgd :: GameState -> Picture
 placeBkgd g = let
-   bkgd = fromJust$ unsafePerformIO $ loadJuicy $ "pics/mazeCircleBig.png"
+   bkgd = fromJust$ unsafePerformIO $ loadJuicy $ ("pics/"++Settings.imageSrc)
    p = view (board.player1) g
    (x,y) = mapTup fromIntegral (view position p)
  in

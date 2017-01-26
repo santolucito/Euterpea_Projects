@@ -10,7 +10,9 @@ import qualified Graphics.Gloss.Interface.IO.Game as G
 import Control.Lens
 import Debug.Trace
 
-levelImgSrcs = map ("pics/"++) ["mazeCircleBig.png"]
+import Settings
+
+levelImgSrcs = map ("pics/"++) [Settings.imageSrc]
 playerImgSrcs = let
   f d = map (\x-> d++"/frame_"++(show x)++"_delay-0.06s.gif") [0..9]
  in

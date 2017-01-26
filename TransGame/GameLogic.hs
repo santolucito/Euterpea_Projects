@@ -13,6 +13,8 @@ import Codec.Picture
 
 import Debug.Trace
 
+import Settings
+
 initialState :: StdGen -> Images -> GameState 
 initialState g is = GameState { 
    _board = emptyBoard is
@@ -27,7 +29,7 @@ emptyBoard is = Board {
   ,_dir      = Types.Left
   ,_aliveTime= 0
   ,_score    = 0},
- _levelName = "mazeCircleBig"
+ _levelName = takeWhile (/='.') Settings.imageSrc
 }
 
 
