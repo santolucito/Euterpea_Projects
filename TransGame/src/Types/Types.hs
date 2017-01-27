@@ -1,40 +1,48 @@
-{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 
-module Types where
+module Types.Types where
 
 --import FRP.Yampa
 import qualified Graphics.Gloss.Interface.IO.Game as G
 
 import System.Random
 
-import Control.Lens
 import qualified Data.Map as M
 import Codec.Picture
 
+import Types.GameObj
+
 data Player = Player {
-   _position   :: (Int,Int)
-  ,_dir        :: Direction
-  ,_score      :: Int
-  ,_aliveTime  :: Int
-  ,_inMotion   :: Bool
+   position   :: (Int,Int)
+  ,dir        :: Direction
+  ,score      :: Int
+  ,aliveTime  :: Int
+  ,inMotion   :: Bool
 } deriving (Show)
 
+data Level = Level String
 data Board = Board {
-   _player1  :: Player
-  ,_levelName:: String
-} 
+   player1  :: Player
+  ,levelName :: Level
+}
+
+class HasImageSrc a where
+  getImageSrc :: a -> String
+
 
 data Images = Images {
-  _playerImgs :: ImageMap
- ,_levelImgs :: ImageMap 
+  playerImgs :: ImageMap
+ ,levelImgs :: ImageMap 
  }
+
+-- | the Image (fst) is used for look at the data of the picture
+-- | the G.Picutre is used for rendering
 type ImageMap = M.Map String (Image PixelRGBA8,G.Picture)
 
-data GameState = GameState { _board :: Board
-                           , _status :: GameStatus
-                           , _gen :: StdGen
-			   , _images :: Images
+data GameState = GameState { board :: Board
+                           , status :: GameStatus
+                           , gen :: StdGen
+                           , images :: Images
                            }
 
 
@@ -48,12 +56,7 @@ data GameStatus = InProgress
                 | GameOver
                 deriving (Eq, Show)
 
-makeLenses ''GameState
-makeLenses ''Board
-makeLenses ''Player
-makeLenses ''Images
 
 type GameInput = Direction
 --type GameInput = Event Direction
 type InputEvent = G.Event
-

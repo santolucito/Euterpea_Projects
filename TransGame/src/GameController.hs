@@ -3,13 +3,13 @@
 {-# LANGUAGE MultiWayIf #-}
 
 module
-    HandmadeMain
+    GameController
 where
 
 import System.Random (StdGen)
 import FRP.Yampa
 
-import Types
+import Types.Types
 import GameLogic
 
 -- | Run the game while the player ('notDead')
@@ -18,8 +18,6 @@ wholeGame :: StdGen -> Images -> SF GameInput GameState
 wholeGame g is = switch
   (notDead g is >>> (identity &&& lostGame))
   (restartGame g is)
-
-
 
 
 -- | Start the game using the initial game state 

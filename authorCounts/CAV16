@@ -1,0 +1,58 @@
+Krishnendu Chatterjee, Hongfei Fu and Amir Kafshdar Goharshady# Termination Analysis of Probabilistic Programs through Positivstellensatz’s
+Hassan Eldib, Meng Wu and Chao Wang# Synthesis of Fault-Attack Countermeasures for Cryptographic Circuits
+Marco Gario, Alessandro Cimatti, Cristian Mattarei, Stefano Tonetta and Kristin Yvonne Rozier# Model Checking at Scale: Automated Air Traffic Control Design Space Exploration
+Stuart Pernsteiner, Calvin Loncaric, Emina Torlak, Zachary Tatlock, Xi Wang, Michael Ernst and Jonathan Jacky# Investigating Safety of a Radiotherapy Machine Using System Models with Pluggable Checkers
+Yu-Fang Chen, Song Lei and Zhilin Wu# The Commutativity Problem of the MapReduce Framework: A Transducer-based Approach
+Chih-Hong Cheng, Yassine Hamsa and Harald Ruess# Structural Synthesis for GXW Specifications
+Paul Fiterau-Brostean, Ramon Janssen, Frits Vaandrager and Paul Fiterau Brostean# Combining Model Checking and Automata Learning to Analyze TCP Implementations
+Jakub Daniel, Alessandro Cimatti, Alberto Griggio, Stefano Tonetta and Sergio Mover# Infinite-state Liveness-to-Safety via Implicit Abstraction and Well-founded Relations
+Christel Baier, Stefan Kiefer, Joachim Klein, Sascha Klüppelholz, David Müller and James Worrell# Markov Chains and Unambiguous Büchi Automata
+Salomon Sickert, Javier Esparza, Stefan Jaax and Jan Křetínský# Limit-Deterministic Büchi Automata for Linear Temporal Logic
+Fei He, Shu Mao and Bow-Yaw Wang# Learning-based Assume-Guarantee Regression Verification
+Alastair Reid, Rick Chen, Anastasios Deligiannis, David Gilday, David Hoyes, Will Keen, Ashan Pathirane, Owen Shepherd, Peter Vrabel and Ali Zaidi# End-to-End Verification of ARM Processors with ISA-Formal
+Karam Abd Elkader, Orna Grumberg, Corina Pasareanu and Sharon Shoham# Automated Circular Assume-Guarantee Reasoning with N-way Decomposition and Alphabet Refinement
+Samuel Drews and Aws Albarghouthi# Effectively Propositional Interpolants
+Loris D’Antoni, Roopsha Samanta and Rishabh Singh# Qlose: Program Repair with Quantitative Objectives
+FengWei Xu, Ming Fu, Xinyu Feng, Xiaoran Zhang, Hui Zhang, Zhaohui Li and Ming Fu# A Practical Verification Framework for Preemptive OS Kernels
+Massimo Benerecetti, Daniele Dell’Erba and Fabio Mogavero# Solving Parity Games via Priority Promotion
+Bouyer Patricia, Colange Maximilien and Markey Nicolas# Symbolic Optimal Reachability in Weighted Timed Automata
+Bai Xue, Zhikun She, Arvind Easwaran and Bai Xue# Under-Approximating Backward Reachable Sets by Polytopes
+Maximiliano Cristia and Gianfranco Rossi# A Decision Procedure for Sets, Binary Relations and Partial Functions
+Aina Niemetz, Mathias Preiner and Armin Biere# Precise and Complete Propagation-based Local Search for Satisfiability Modulo Theories
+Rustan Leino and Clément Pit–Claudel# Trigger selection strategies to stabilize program verifiers
+Dror Fried, Lucas Tabajara and Moshe Vardi# BDD-Based Boolean Functional Synthesis
+Rajeev Alur, Salar Moarref and Ufuk Topcu# Compositional Synthesis of Reactive Controllers for Multi-Agent Systems
+Gilles Barthe, Thomas Espitau, Luis María Ferrer Fioriti and Justin Hsu# Synthesizing Probabilistic Invariants via Doob’s Decompositions
+Alexander Legg, Nina Narodytska and Leonid Ryzhyk# A SAT-Based Counterexample Guided Method for Unbounded Synthesis
+Ernst Moritz Hahn, Sven Schewe, Andrea Turrini and Lijun Zhang#A Simple Algorithm for Solving Qualitative Probabilistic Parity Games
+Anthony Lin and Philipp Ruemmer# Liveness of Randomised Parameterised Systems under Arbitrary Schedulers
+Parasara Sridhar Duggirala and Mahesh Viswanathan# Parsimonious Simulations Based Verification of Linear Systems
+Minh-Thai Trinh, Duc-Hiep Chu and Joxan Jaffar# Progressive Reasoning over Recursively-Defined Strings
+Timon Gehr, Sasa Misailovic and Martin Vechev# PSI: Exact Symbolic Inference for Probabilistic Programs
+Parosh Aziz Abdulla, Mohamed Faouzi Atig, Bengt Jonsson and Carl Leonardsson# Stateless Model Checking for POWER
+Quang Loc Le, Sun Jun and Wei-Ngan Chin# Satisfiability Modulo Heap-Based Programs
+Hung-En Wang, Tzung-Lin Tsai, Chun-Han Lin, Fang Yu and Jie-Hong Jiang# String Analysis via Automata Manipulation with Logic Circuit Representation
+Peter Muller, Malte Schwerhoff and Alexander Summers# Automatic Verification of Iterated Separating Conjunctions using Symbolic Execution
+Pavithra Prabhakar and Miriam García Soto# Counterexample Guided Abstraction Refinement for Stability Analysis
+Bernd Finkbeiner and Felix Klein# Bounded Cycle Synthesis
+Grigory Fedyukovich, Arie Gurfinkel and Natasha Sharygina# Property Directed Equivalence via Abstract Simulation
+Zhoulai Fu and Zhendong Su# XSat: A Fast Floating-Point Satisfiability Solver
+Tobias Klenze, Sam Bayless and Alan Hu# Fast, Flexible, and Minimal CTL Synthesis via SMT
+Roderick Bloem, Nicolas Braud-Santoni and Swen Jacobs# Synthesis of Self-Stabilizing and Byzantine-Resilient Distributed Systems
+Dmitry Chistikov, Rupak Majumdar and Filip Niksic# Hitting Families of Schedules for Asynchronous Programs
+Michael Dooley and Fabio Somenzi# Proving Parameterized Systems Safe by Generalizing Clausal Proofs of Small Instances
+Przemyslaw Daca, Thomas Henzinger and Andrey Kupriyanov# Array Folds Logic
+Anton Wijs# BFS-Based Model Checking of Linear-Time Properties With An Application on GPUs
+Roman Manevich, Boris Dogadov and Noam Rinetzky# From Shape Analysis to Termination Analysis in Linear Time
+Vladimir Herdt, Hoang Le, Daniel Große and Rolf Drechsler# ParCoSS: Efficient Parallelized Compiled Symbolic Simulation
+Michele Sevegnani, Muffy Calder and Michele Sevegnani# BigraphER: rewriting and analysis engine for bigraphs
+Adrien Champion, Alain Mebsout, Christoph Sticksel and Cesare Tinelli# The KIND 2 Model-Checker
+Temesghen Kahsai, Philipp Rümmer, Huascar Sanchez and Martin Schäf# JayHorn: A Framework for Verifying Java programs
+Mark Santolucito, Ennan Zhai and Ruzica Piskac# Probabilistic Automated Language Learning for Configuration Files
+Chuchu Fan, Bolun Qi, Sayan Mitra, Mahesh Viswanathan and Parasara Sridhar Duggirala# Automatic Reachability Analysis for Nonlinear Hybrid Models with C2E2
+Ruediger Ehlers and Vasumathi Raman# Slugs: Extensible GR(1) Synthesis
+Van Chan Ngo, Axel Legay and Vania Joloboff# PSCV: A Runtime Verification Tool for Probabilistic SystemC Models
+Bishoksan Kafle, John Gallagher and Jose Morales# RAHFT: A Tool for Verifying Horn Clauses using Abstract Interpretation and Finite Tree Automata
+Dirk Beyer and Matthias Dangl# Verification-Aided Debugging: A Convenient Web-Service for Witness Exploration
+Dwight Guth, Chris Hathhorn, Manasvi Saxena, and Grigore Rosu# RV-Match: Practical Semantics-Based Program Analysis
+Bernhard Scholz, Herbert Jordan and Pavle Subotic# Souffle: On Synthesis of Datalog for Program Analyzers

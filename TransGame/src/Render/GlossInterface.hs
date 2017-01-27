@@ -1,4 +1,4 @@
-module GlossInterface where
+module Render.GlossInterface where
 
 import Prelude hiding (id, (.))
 

@@ -1,0 +1,41 @@
+Guy Katz, Clark Barrett and David Harel# Theory-Aided Model Checking of Concurrent Transition Systems
+
+Murali Talupur, Sandip Ray and John Erickson# Transaction Flows and Executable Models: Formalization and Analysis of Message passing Protocols
+
+Marc Brockschmidt, Daniel Larraz, Albert Oliveras, Enric Rodríguez Carbonell and Albert Rubio# Compositional Safety Verification with Max-SMT
+
+Jesse Bingham# Universal Boolean Functional Vectors
+
+Tim Lange, Martin Neuhäußer and Thomas Noll# IC3 Software Model Checking on Control Flow Automata
+
+Cristian Mattarei, Alessandro Cimatti, Marco Gario, Stefano Tonetta and Kristin Rozier# Comparing Different Functional Allocations in Automated Air Traffic Control Design
+
+Pramod Subramanyan, Yakir Vizel, Sayak Ray and Sharad Malik# Template-based Synthesis of Instruction-Level Abstractions for SoC Verification
+
+Mathias Preiner, Aina Niemetz and Armin Biere# Better Lemmas with Lambda Extraction
+
+Mathias Soeken, Baruch Sterin, Rolf Drechsler and Robert Brayton# Reverse Engineering with Simulation Graphs
+
+Dmitry Burlyaev and Pascal Fradet# Formal Verification of Automatic Circuit Transformations for Fault-Tolerance
+
+Azadeh Farzan and Zachary Kincaid# Compositional Recurrence Analysis
+
+Yuri Meshman, Noam Rinetzky and Eran Yahav# Pattern-based Synthesis of Synchronization for the C++ Memory Model
+
+Anvesh Komuravelli, Nikolaj Bjorner, Arie Gurfinkel and Kenneth McMillan# Compositional Verification of Procedural Programs using Horn Clauses over Integers and Arrays
+
+Arie Gurfinkel and Alexander Ivrii# Pushing to the Top
+
+Ajith John, Shetal Shah, Supratik Chakraborty, Ashutosh Trivedi and S Akshay# A CEGAR Algorithm for Generating Skolem Functions from Factored Formulas
+
+Javier Esparza and Philipp Meyer# An SMT-based Approach to Fair Termination Analysis
+
+Kumar Madhukar, Björn Wachter, Daniel Kroening, Matt Lewis and Mandayam Srivas# Accelerating Invariant Generation
+
+Moritz Sinn, Florian Zuleger and Helmut Veith# Difference Constraints: An adequate Abstraction for Complexity Analysis of Imperative Programs
+
+Leander Tentrup and Markus Rabe# CAQE: A Certifying QBF Solver
+
+Chirag Agarwal, Paul Hylander, Yogesh Mahajan, Jonathan Michelson and Vigyan Singhal# Compositional Reasoning Gotchas in Practice
+
+Parosh Aziz Abdulla, Mohamed Faouzi Atig, Zeinab Ganjei, Ahmed Rezine and Yunyun Zhu# Verification of Cache Coherence Protocols wrt# Trace Filters
