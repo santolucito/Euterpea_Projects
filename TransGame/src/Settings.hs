@@ -1,3 +1,4 @@
 module Settings where
 
-imageSrc = "pacmanMaze.png"
+levelImageSrc = "pacmanMaze.png" 
+imageDir = "pics/"

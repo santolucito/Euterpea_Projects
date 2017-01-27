@@ -11,25 +11,24 @@ import Render.ImageIO
 import Control.Lens
 import Codec.Picture 
 
-import Debug.Trace
-
 import Settings
 
 initialState :: StdGen -> Images -> GameState 
 initialState g is = GameState { 
-   _board = emptyBoard is
-  ,_status = InProgress
-  ,_gen = g
-  ,_images = is
+   board = emptyBoard is
+  ,status = InProgress
+  ,gen = g
+  ,images = is
 }
 
 emptyBoard is = Board {
- _player1 = Player {
-   _position = (0,0)
-  ,_dir      = Left
-  ,_aliveTime= 0
-  ,_score    = 0},
- _levelName = takeWhile (/='.') Settings.imageSrc
+ player1 = Player {
+   position = (0,0)
+  ,dir      = Left
+  ,aliveTime= 0
+  ,score    = 0
+  ,inMotion = False},
+ levelName = Settings.levelImageSrc
 }
 
 

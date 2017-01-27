@@ -5,7 +5,7 @@ module Input.Input where
 import qualified Types.Types as T
 
 import qualified Graphics.Gloss.Interface.IO.Game as G
-import FRP.Yampa (Event(..), SF, arr, (>>>), returnA, dHold)
+import FRP.Yampa (Event(..), SF, arr, returnA, dHold)
 
 import System.IO.Unsafe
 import System.Exit
@@ -24,6 +24,6 @@ parseInput = proc e -> do
     (G.EventKey (G.SpecialKey G.KeyDown) G.Down _ _) -> T.Down
     (G.EventKey (G.SpecialKey G.KeyLeft) G.Down _ _) -> T.Left
     (G.EventKey (G.SpecialKey G.KeyRight) G.Down _ _) -> T.Right
-    (G.EventKey (G.SpecialKey G.KeySpace) G.Down _ _) -> ($!) (\_ -> T.Up) (unsafePerformIO exitSuccess)
+    (G.EventKey (G.SpecialKey G.KeySpace) G.Down _ _) -> ($!) (\_ -> T.Up) (unsafePerformIO exitSuccess) --Just for debugging
     _ -> T.None
 

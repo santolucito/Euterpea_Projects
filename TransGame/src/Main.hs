@@ -17,19 +17,19 @@ import qualified Graphics.Gloss.Interface.IO.Game as G
 
 import System.Random (newStdGen, StdGen)
 
-
+main :: IO()
 main = playGame
 
 -- | load a random numbe gen
--- and load up all the images we might need
--- this might be ok b/c lazy, but will have to check later
+--   NB : read in every image we will ever need
+--   this might use up too much memor if the game uses many images since we have no way to evict an image (I think)
 playGame :: IO ()
 playGame =do
   do
     g <- newStdGen
 
-    levelImgs <- makeLevelImgMap
-    playerImgs <- makePlayerImgMap
+    levelImgs <- makeImgMap levelImgSrcs
+    playerImgs <- makeImgMap playerImgSrcs
     
     playYampa
         (G.InWindow "Yampa Example" (420, 360) (800, 600))

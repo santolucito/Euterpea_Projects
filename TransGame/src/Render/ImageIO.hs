@@ -1,21 +1,22 @@
+{-# LANGUAGE PartialTypeSignatures #-}
+{-# LANGUAGE RecordWildCards #-}
 module Render.ImageIO where
 
 import Types.Types
 import Settings
 
-
+import qualified Graphics.Gloss.Interface.IO.Game as G
+import Graphics.Gloss.Juicy
 import Codec.Picture
 
-import Graphics.Gloss.Juicy
-import qualified Graphics.Gloss.Interface.IO.Game as G
-
 import qualified Data.Map as M
-import Control.Lens
+import Control.Lens (view)
 
 
 -- | Where in the file system do images come from
 levelImgSrcs :: [FilePath]
-levelImgSrcs = map ("pics/"++) [Settings.imageSrc]
+levelImgSrcs = map ("pics/"++) [Settings.levelImageSrc]
+
 playerImgSrcs :: [FilePath]
 playerImgSrcs = let
   f d = map (\x-> d++"/frame_"++(show x)++"_delay-0.06s.gif") [0..9]
@@ -24,13 +25,6 @@ playerImgSrcs = let
 
 -- | we need different images for differnet character states
 --   use a map from state names (string for now) to image
-makePlayerImgMap :: IO(ImageMap)
-makePlayerImgMap = makeImgMap playerImgSrcs
-
-makeLevelImgMap :: IO(ImageMap)
-makeLevelImgMap = makeImgMap levelImgSrcs
-
-
 makeImgMap :: [FilePath] -> IO(ImageMap)
 makeImgMap is = do
  allImages <- mapM readImage is
@@ -41,22 +35,24 @@ makeImgMap is = do
 
 -- | get the chacter state image given a player state
 --   we also simulate a gif here
-getPlayerImg :: ImageMap -> Player -> G.Picture
-getPlayerImg playerImgs p= let
-  time = view aliveTime p
-  t = if view inMotion p then time else 0 
-  d = view dir p
-  i = playerImgs M.! ("pics/"++(getGifFrame t 9 $ show d))
- in
-  snd i
+instance HasImageSrc Level where
+  getImageSrc (Level s) = s
+instance HasImageSrc Player where
+  getImageSrc p =  let
+    time = aliveTime p
+    t = if inMotion p then time else 0 
+    d = dir p
+   in
+    getGifFrame t 9 $ show d
 
-getLevelImg :: GameState -> (Image PixelRGBA8,G.Picture)
-getLevelImg g = let
-  allImgs = view (images.levelImgs) g
-  iName =  ("pics/"++(view (board.levelName) g)++".png")
-  i = allImgs M.! iName
+getImg :: HasImageSrc a => (Board -> a) -> (Images -> ImageMap) -> GameState -> (Image PixelRGBA8,G.Picture)
+getImg obj all g = let
+  o = obj $ board g
+  s = getImageSrc o
+  allImgs = all $ images g
  in
-  i
+  allImgs M.! (Settings.imageDir ++ s)
+ 
 
 --Assume every gif (test.gif) has been expanded to
 --test_0.gif, test_1.gif, etc
