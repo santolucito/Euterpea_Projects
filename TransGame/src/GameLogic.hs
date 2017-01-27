@@ -5,8 +5,8 @@ module GameLogic where
 
 import System.Random (StdGen)
 import Prelude hiding (Left,Right)
-import Types 
-import ImageIO
+import Types.Types 
+import Render.ImageIO
 
 import Control.Lens
 import Codec.Picture 
@@ -26,35 +26,28 @@ initialState g is = GameState {
 emptyBoard is = Board {
  _player1 = Player {
    _position = (0,0)
-  ,_dir      = Types.Left
+  ,_dir      = Left
   ,_aliveTime= 0
   ,_score    = 0},
  _levelName = takeWhile (/='.') Settings.imageSrc
 }
 
 
-isGameOver :: GameState -> Bool
-isGameOver s = False
-
-
 update :: (GameState, GameInput) -> GameState
-update (gameState, input) = tick$ case input of
+update (gameState, input) = tick $ case input of
   None -> set (board.player1.inMotion) False gameState
   dir -> move dir gameState
 
-tick :: GameState -> GameState
-tick = over (board.player1.aliveTime) (+1) 
-
 move :: Direction -> GameState -> GameState
-move d g = if collision (makeMove d g) then g else makeMove d g
+move d g = if wallCollision (makeMove d g) then g else makeMove d g
 
-collision :: GameState -> Bool
-collision g = let
+wallCollision :: GameState -> Bool
+wallCollision g = let
   (x,y) = view (board.player1.position) g
   xsize = 5
   ysize = 8
   playerLocs = [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
-  boardPixels = map (\(x,y) -> pixelAtFromCenter (getLevelImg g) x y) playerLocs
+  boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getLevelImg g) x y) playerLocs
  in 
   any (==blackAPixel) boardPixels
 
@@ -81,3 +74,11 @@ makeMove d g = let
     newDir = set (board.player1.dir) d newPos
   in
     set (board.player1.inMotion) True newDir
+
+-- | conviences
+
+isGameOver :: GameState -> Bool
+isGameOver s = False
+
+tick :: GameState -> GameState
+tick = over (board.player1.aliveTime) (+1) 

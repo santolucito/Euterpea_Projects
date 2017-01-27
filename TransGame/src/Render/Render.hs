@@ -1,21 +1,14 @@
 
-module Render where
+module Render.Render where
 
 import Data.Monoid
 import Graphics.Gloss
 
-import Graphics.Gloss.Juicy
-
-import Data.Maybe
-import System.IO.Unsafe
-
-import Types
+import Types.Types
 import FRP.Yampa
-import ImageIO
+import Render.ImageIO
 
 import Control.Lens
-
-import Settings
 
 -- | After parsing the game input and reacting to it we need to draw the
 -- current game state which might have been updated
@@ -28,23 +21,25 @@ renderState s =
   placePlayer s <>
   placeText s
 
-placeBkgd :: GameState -> Picture
-placeBkgd g = let
-   bkgd = fromJust$ unsafePerformIO $ loadJuicy $ ("pics/"++Settings.imageSrc)
-   p = view (board.player1) g
-   (x,y) = mapTup fromIntegral (view position p)
- in
-   translate (-x) (-y) bkgd
-
+-- | keep the player centered at all times
 placePlayer :: GameState -> Picture
 placePlayer g = let
-   p = getPlayerPic (view (images.playerImgs) g) (view (board.player1) g)
-   (x,y) = mapTup fromIntegral ((view (board.player1.position)) g)
+   p = getPlayerImg (view (images.playerImgs) g) (view (board.player1) g)
+   --(x,y) = mapTup fromIntegral ((view (board.player1.position)) g)
  in
    translate 0 0 p
      
+-- | move the background around the player
+placeBkgd :: GameState -> Picture
+placeBkgd g = let
+   bkgd = snd$ getLevelImg g 
+   (x,y) = mapTup fromIntegral (view (board.player1.position) g)
+ in
+   translate (-x) (-y) bkgd
+
 placeText :: GameState -> Picture
 placeText g = 
    translate (50) (120) $ text $ show $ (10000 - view (board.player1.aliveTime) g)
 
+mapTup :: (a -> b) -> (a, a) -> (b, b)
 mapTup f (a1, a2) = (f a1, f a2)

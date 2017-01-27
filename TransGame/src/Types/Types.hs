@@ -1,7 +1,7 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 
-module Types where
+module Types.Types where
 
 --import FRP.Yampa
 import qualified Graphics.Gloss.Interface.IO.Game as G
@@ -11,6 +11,8 @@ import System.Random
 import Control.Lens
 import qualified Data.Map as M
 import Codec.Picture
+
+import Types.GameObj
 
 data Player = Player {
    _position   :: (Int,Int)
@@ -29,12 +31,15 @@ data Images = Images {
   _playerImgs :: ImageMap
  ,_levelImgs :: ImageMap 
  }
+
+-- | the Image (fst) is used for look at the data of the picture
+-- | the G.Picutre is used for rendering
 type ImageMap = M.Map String (Image PixelRGBA8,G.Picture)
 
 data GameState = GameState { _board :: Board
                            , _status :: GameStatus
                            , _gen :: StdGen
-			   , _images :: Images
+                           , _images :: Images
                            }
 
 

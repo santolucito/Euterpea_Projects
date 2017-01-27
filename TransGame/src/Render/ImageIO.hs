@@ -1,30 +1,37 @@
-module ImageIO where
+module Render.ImageIO where
 
-import Types
+import Types.Types
+import Settings
+
+
 import Codec.Picture
-import qualified Data.Map as M
 
 import Graphics.Gloss.Juicy
 import qualified Graphics.Gloss.Interface.IO.Game as G
 
+import qualified Data.Map as M
 import Control.Lens
-import Debug.Trace
 
-import Settings
 
+-- | Where in the file system do images come from
+levelImgSrcs :: [FilePath]
 levelImgSrcs = map ("pics/"++) [Settings.imageSrc]
+playerImgSrcs :: [FilePath]
 playerImgSrcs = let
   f d = map (\x-> d++"/frame_"++(show x)++"_delay-0.06s.gif") [0..9]
  in
   map ("pics/"++) (concatMap f  ["Right", "Down", "Left", "Up"])
 
+-- | we need different images for differnet character states
+--   use a map from state names (string for now) to image
 makePlayerImgMap :: IO(ImageMap)
 makePlayerImgMap = makeImgMap playerImgSrcs
 
 makeLevelImgMap :: IO(ImageMap)
 makeLevelImgMap = makeImgMap levelImgSrcs
 
-makeImgMap :: [String] -> IO(ImageMap)
+
+makeImgMap :: [FilePath] -> IO(ImageMap)
 makeImgMap is = do
  allImages <- mapM readImage is
  let imgs = map (either blackImage convertRGBA8) allImages
@@ -32,9 +39,10 @@ makeImgMap is = do
  let toMap ks vs = M.fromList $ zip ks vs
  return $ toMap is (zip imgs pics)
 
-
-getPlayerPic :: ImageMap -> Player -> G.Picture
-getPlayerPic playerImgs p= let
+-- | get the chacter state image given a player state
+--   we also simulate a gif here
+getPlayerImg :: ImageMap -> Player -> G.Picture
+getPlayerImg playerImgs p= let
   time = view aliveTime p
   t = if view inMotion p then time else 0 
   d = view dir p
@@ -42,13 +50,13 @@ getPlayerPic playerImgs p= let
  in
   snd i
 
-getLevelImg :: GameState -> Image PixelRGBA8
+getLevelImg :: GameState -> (Image PixelRGBA8,G.Picture)
 getLevelImg g = let
   allImgs = view (images.levelImgs) g
   iName =  ("pics/"++(view (board.levelName) g)++".png")
   i = allImgs M.! iName
  in
-  fst i
+  i
 
 --Assume every gif (test.gif) has been expanded to
 --test_0.gif, test_1.gif, etc
