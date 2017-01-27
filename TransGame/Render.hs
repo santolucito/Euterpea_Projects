@@ -23,11 +23,12 @@ drawGame = arr renderState
 renderState :: GameState -> Picture
 renderState s = 
   placeBkgd s <>
-  placePlayer s
+  placePlayer s <>
+  placeText s
 
 placeBkgd :: GameState -> Picture
 placeBkgd g = let
-   bkgd = fromJust$ unsafePerformIO $ loadJuicy $ "pics/mazeCircle.png"
+   bkgd = fromJust$ unsafePerformIO $ loadJuicy $ "pics/mazeCircleBig.png"
    p = view (board.player1) g
    (x,y) = mapTup fromIntegral (view position p)
  in
@@ -38,6 +39,10 @@ placePlayer g = let
    p = getPlayerPic (view (images.playerImgs) g) (view (board.player1) g)
    (x,y) = mapTup fromIntegral ((view (board.player1.position)) g)
  in
-   translate 0 0  p
+   translate 0 0 p
      
+placeText :: GameState -> Picture
+placeText g = 
+   translate (50) (120) $ text $ show $ (10000 - view (board.player1.aliveTime) g)
+
 mapTup f (a1, a2) = (f a1, f a2)

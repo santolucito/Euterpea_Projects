@@ -34,9 +34,9 @@ unify n (Just n') | n == n'   = show n
 renderSlider:: Extent -> Color -> String -> Picture
 renderSlider ex c s = color c bg -- <> color white fg
   where
-    --bg = polygon (cornerPoints ex)
+    bg = polygon (cornerPoints ex)
     --bg = circle (20)
-    bg = thickCircle 10 (20) --cornerPoints ex)
+    --bg = thickCircle 10 (20) --cornerPoints ex)
 
 renderButton :: Extent -> Color -> String -> Picture
 renderButton ex c s = color c bg  <> color black fg
