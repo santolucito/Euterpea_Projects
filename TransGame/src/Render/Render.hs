@@ -24,7 +24,7 @@ renderState s =
 -- | keep the player centered at all times
 placePlayer :: GameState -> Picture
 placePlayer g = let
-   p = snd $ getImg player1 playerImgs g
+   p = snd $ getImg _player1 _playerImgs g
    --(x,y) = mapTup fromIntegral ((view (board.player1.position)) g)
  in
    translate 0 0 p
@@ -32,14 +32,14 @@ placePlayer g = let
 -- | move the background around the player
 placeBkgd :: GameState -> Picture
 placeBkgd g = let
-   bkgd = snd$ getImg levelName levelImgs g 
-   (x,y) = mapTup fromIntegral $ (position.player1.board) g
+   bkgd = snd$ getImg _levelName _levelImgs g 
+   (x,y) = mapTup fromIntegral $ (_position._player1._board) g
  in
    translate (-x) (-y) bkgd
 
 placeText :: GameState -> Picture
 placeText g = 
-   translate (50) (120) $ text $ show $ (10000 - (aliveTime.player1.board) g)
+   translate (50) (120) $ text $ show $ (10000 - (_aliveTime._player1._board) g)
 
 mapTup :: (a -> b) -> (a, a) -> (b, b)
 mapTup f (a1, a2) = (f a1, f a2)

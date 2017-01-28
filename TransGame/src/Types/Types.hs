@@ -1,3 +1,4 @@
+{-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 
 module Types.Types where
@@ -12,18 +13,20 @@ import Codec.Picture
 
 import Types.GameObj
 
+import Control.Lens (makeLenses)
+
 data Player = Player {
-   position   :: (Int,Int)
-  ,dir        :: Direction
-  ,score      :: Int
-  ,aliveTime  :: Int
-  ,inMotion   :: Bool
+  _position   :: (Int,Int)
+  ,_dir        :: Direction
+  ,_score      :: Int
+  ,_aliveTime  :: Int
+  ,_inMotion   :: Bool
 } deriving (Show)
 
 data Level = Level String
 data Board = Board {
-   player1  :: Player
-  ,levelName :: Level
+    _player1  :: Player
+  ,_levelName :: Level
 }
 
 class HasImageSrc a where
@@ -31,18 +34,18 @@ class HasImageSrc a where
 
 
 data Images = Images {
-  playerImgs :: ImageMap
- ,levelImgs :: ImageMap 
+  _playerImgs :: ImageMap
+ ,_levelImgs :: ImageMap 
  }
 
 -- | the Image (fst) is used for look at the data of the picture
 -- | the G.Picutre is used for rendering
 type ImageMap = M.Map String (Image PixelRGBA8,G.Picture)
 
-data GameState = GameState { board :: Board
-                           , status :: GameStatus
-                           , gen :: StdGen
-                           , images :: Images
+data GameState = GameState { _board :: Board
+                           , _status :: GameStatus
+                           , _gen :: StdGen
+                           , _images :: Images
                            }
 
 
@@ -60,3 +63,8 @@ data GameStatus = InProgress
 type GameInput = Direction
 --type GameInput = Event Direction
 type InputEvent = G.Event
+
+makeLenses ''GameState
+makeLenses ''Board
+makeLenses ''Player
+makeLenses ''Images

@@ -39,17 +39,17 @@ instance HasImageSrc Level where
   getImageSrc (Level s) = s
 instance HasImageSrc Player where
   getImageSrc p =  let
-    time = aliveTime p
-    t = if inMotion p then time else 0 
-    d = dir p
+    time = _aliveTime p
+    t = if _inMotion p then time else 0 
+    d = _dir p
    in
     getGifFrame t 9 $ show d
 
 getImg :: HasImageSrc a => (Board -> a) -> (Images -> ImageMap) -> GameState -> (Image PixelRGBA8,G.Picture)
 getImg obj all g = let
-  o = obj $ board g
+  o = obj $ _board g
   s = getImageSrc o
-  allImgs = all $ images g
+  allImgs = all $ _images g
  in
   allImgs M.! (Settings.imageDir ++ s)
  

@@ -1,4 +1,4 @@
---  LANGUAGE TemplateHaskell #-}
+{-#  LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DuplicateRecordFields #-}
 
 module GameLogic where
@@ -15,20 +15,20 @@ import Settings
 
 initialState :: StdGen -> Images -> GameState 
 initialState g is = GameState { 
-   board = emptyBoard is
-  ,status = InProgress
-  ,gen = g
-  ,images = is
+   _board = emptyBoard is
+  ,_status = InProgress
+  ,_gen = g
+  ,_images = is
 }
 
 emptyBoard is = Board {
- player1 = Player {
-   position = (0,0)
-  ,dir      = Left
-  ,aliveTime= 0
-  ,score    = 0
-  ,inMotion = False},
- levelName = Settings.levelImageSrc
+ _player1 = Player {
+   _position = (0,0)
+  ,_dir      = Left
+  ,_aliveTime= 0
+  ,_score    = 0
+  ,_inMotion = False},
+ _levelName = Level Settings.levelImageSrc
 }
 
 
@@ -46,7 +46,7 @@ wallCollision g = let
   xsize = 5
   ysize = 8
   playerLocs = [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
-  boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getLevelImg g) x y) playerLocs
+  boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName _levelImgs g) x y) playerLocs
  in 
   any (==blackAPixel) boardPixels
 
