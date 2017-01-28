@@ -2,7 +2,9 @@
 {-# LANGUAGE RecordWildCards #-}
 module Render.ImageIO where
 
-import Types.Types
+import Types.Common
+import Types.GameObjs
+import Types.HasImage
 import Settings
 
 import qualified Graphics.Gloss.Interface.IO.Game as G
@@ -10,7 +12,6 @@ import Graphics.Gloss.Juicy
 import Codec.Picture
 
 import qualified Data.Map as M
-import Control.Lens (view)
 
 import Debug.Trace
 
@@ -34,18 +35,8 @@ makeImgMap is = do
  let toMap ks vs = M.fromList $ zip ks vs
  return $ toMap is (zip imgs pics)
 
--- | get the chacter state image given a player state
---   we also simulate a gif here
-instance HasImageSrc Level where
-  getImageSrc (Level s) = s
-instance HasImageSrc Player where
-  getImageSrc p =  let
-    time = _aliveTime p
-    t = if _inMotion p then time else 0 
-    d = _dir p
-   in
-    getGifFrame t 9 $ show d
-
+ -- | get the chacter state image given a player state
+ --   we also simulate a gif here
 getImg :: HasImageSrc a => (Board -> a) -> (Images -> ImageMap) -> GameState -> (Image PixelRGBA8,G.Picture)
 getImg obj all g = let
   o = obj $ _board g
@@ -55,13 +46,4 @@ getImg obj all g = let
   allImgs M.! (Settings.imageDir ++ s)
 
 
---Assume every gif (test.gif) has been expanded to
---test_0.gif, test_1.gif, etc
---this is of course a terrible idea, but it should work
-getGifFrame :: Int -> Int -> FilePath -> FilePath
-getGifFrame time numFrames dir = let
-  thisFrame = (floor (fromIntegral time / 4)) `mod` numFrames
- in
-  dir ++"/frame_" ++ (show thisFrame) ++ "_delay-0.06s.gif"
-  
   

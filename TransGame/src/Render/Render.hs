@@ -4,11 +4,12 @@ module Render.Render where
 import Data.Monoid
 import Graphics.Gloss
 
-import Types.Types
+import Types.Common
+import Types.GameObjs
 import FRP.Yampa
 import Render.ImageIO
 
-import Control.Lens
+import Control.Lens (view)
 
 -- | After parsing the game input and reacting to it we need to draw the
 -- current game state which might have been updated
@@ -33,7 +34,7 @@ placePlayer g = let
 placeBkgd :: GameState -> Picture
 placeBkgd g = let
    bkgd = snd$ getImg _levelName _levelImgs g 
-   (x,y) = mapTup fromIntegral $ (_position._player1._board) g
+   (x,y) = mapTup fromIntegral $ view (board.player1.position) g
  in
    translate (-x) (-y) bkgd
 

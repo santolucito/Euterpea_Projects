@@ -9,7 +9,8 @@ where
 import System.Random (StdGen)
 import FRP.Yampa
 
-import Types.Types
+import Types.Common
+import Types.GameObjs
 import GameLogic
 
 -- | Run the game while the player ('notDead')

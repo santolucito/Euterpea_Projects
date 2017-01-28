@@ -5,7 +5,8 @@ module GameLogic where
 
 import System.Random (StdGen)
 import Prelude hiding (Left,Right)
-import Types.Types 
+import Types.Common
+import Types.GameObjs
 import Render.ImageIO
 
 import Control.Lens

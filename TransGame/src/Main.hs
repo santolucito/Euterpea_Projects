@@ -4,7 +4,8 @@
 module Main where
 
 import GameController
-import Types.Types
+import Types.Common
+import Types.GameObjs
 
 import Render.Render 
 import Render.GlossInterface
