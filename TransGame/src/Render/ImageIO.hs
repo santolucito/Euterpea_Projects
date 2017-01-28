@@ -12,6 +12,7 @@ import Codec.Picture
 import qualified Data.Map as M
 import Control.Lens (view)
 
+import Debug.Trace
 
 -- | Where in the file system do images come from
 levelImgSrcs :: [FilePath]
@@ -52,7 +53,7 @@ getImg obj all g = let
   allImgs = all $ _images g
  in
   allImgs M.! (Settings.imageDir ++ s)
- 
+
 
 --Assume every gif (test.gif) has been expanded to
 --test_0.gif, test_1.gif, etc

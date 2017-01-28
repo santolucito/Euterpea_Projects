@@ -13,6 +13,8 @@ import Codec.Picture
 
 import Settings
 
+import Debug.Trace
+
 initialState :: StdGen -> Images -> GameState 
 initialState g is = GameState { 
    _board = emptyBoard is
@@ -48,8 +50,9 @@ wallCollision g = let
   playerLocs = [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
   boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName _levelImgs g) x y) playerLocs
  in 
-  any (==blackAPixel) boardPixels
+  any (==blackAPixel) (boardPixels)
 
+traceMe x = traceShow x x
 pixelAtFromCenter :: Image PixelRGBA8 -> Int -> Int -> PixelRGBA8
 pixelAtFromCenter i x y = let
   h = imageHeight i 
