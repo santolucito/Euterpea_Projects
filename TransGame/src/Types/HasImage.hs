@@ -1,0 +1,35 @@
+module Types.HasImage where
+
+ import Types.Common
+ import Types.GameObjs
+
+-- | tough to tell where this module stops and ImageIO begins
+ class HasImageSrc a where
+   getImageSrc :: a -> String
+ 
+ -- | Instances for each gameObj we need to render
+ instance HasImageSrc GameObj where
+   getImageSrc o = _img o
+ 
+ instance HasImageSrc Level where
+   getImageSrc (Level s) = s
+
+ instance HasImageSrc Player where
+   getImageSrc p =  let
+     time = _aliveTime p
+     t = if _inMotion p then time else 0 
+     d = _dir p
+    in
+     getGifFrame t 9 $ show d
+
+--Assume every gif (test.gif) has been expanded to
+ --test_0.gif, test_1.gif, etc
+ --this is of course a terrible idea, but it should work
+ getGifFrame :: Int -> Int -> FilePath -> FilePath
+ getGifFrame time numFrames dir = let
+   thisFrame = (floor (fromIntegral time / 4)) `mod` numFrames
+  in
+   dir ++"/frame_" ++ (show thisFrame) ++ "_delay-0.06s.gif"
+   
+  
+ 
