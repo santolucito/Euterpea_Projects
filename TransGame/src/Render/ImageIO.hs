@@ -37,11 +37,11 @@ makeImgMap is = do
 
  -- | get the chacter state image given a player state
  --   we also simulate a gif here
-getImg :: HasImageSrc a => (Board -> a) -> (Images -> ImageMap) -> GameState -> (Image PixelRGBA8,G.Picture)
-getImg obj all g = let
+getImg :: HasImageSrc a => (Board -> a) -> GameState -> (Image PixelRGBA8,G.Picture)
+getImg obj g = let
   o = obj $ _board g
   s = getImageSrc o
-  allImgs = all $ _images g
+  allImgs =  _images g
  in
   allImgs M.! (Settings.imageDir ++ s)
 

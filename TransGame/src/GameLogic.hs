@@ -11,12 +11,13 @@ import Render.ImageIO
 
 import Control.Lens
 import Codec.Picture 
+import qualified Data.Set as S
 
 import Settings
 
 import Debug.Trace
 
-initialState :: StdGen -> Images -> GameState 
+initialState :: StdGen -> ImageMap -> GameState 
 initialState g is = GameState { 
    _board = emptyBoard is
   ,_status = InProgress
@@ -25,13 +26,17 @@ initialState g is = GameState {
 }
 
 emptyBoard is = Board {
- _player1 = Player {
-   _position = (0,0)
-  ,_dir      = Left
-  ,_aliveTime= 0
-  ,_score    = 0
-  ,_inMotion = False},
- _levelName = Level Settings.levelImageSrc
+  _player1 = Player {
+    _gameObj  = GameObj {
+      _position = (0,0)
+     ,_img = ""
+     ,_display = True}
+   ,_dir      = Left
+   ,_aliveTime= 0
+   ,_score    = 0
+   ,_inMotion = False}
+ ,_objs = S.empty
+ ,_levelName = Level Settings.levelImageSrc
 }
 
 
@@ -45,11 +50,11 @@ move d g = if wallCollision (makeMove d g) then g else makeMove d g
 
 wallCollision :: GameState -> Bool
 wallCollision g = let
-  (x,y) = view (board.player1.position) g
+  (x,y) = view (board.player1.gameObj.position) g
   xsize = 5
   ysize = 8
   playerLocs = [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
-  boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName _levelImgs g) x y) playerLocs
+  boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName g) x y) playerLocs
  in 
   any (==blackAPixel) (boardPixels)
 
@@ -73,7 +78,7 @@ makeMove d g = let
      Right -> (1,0)
      _     -> (0,0)
     appT (dx,dy) (x,y) = (x+dx,y+dy)
-    newPos = over (board.player1.position) (appT updateF) g
+    newPos = over (board.player1.gameObj.position) (appT updateF) g
     newDir = set (board.player1.dir) d newPos
   in
     set (board.player1.inMotion) True newDir

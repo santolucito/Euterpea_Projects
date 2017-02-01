@@ -6,6 +6,7 @@ module Types.GameObjs where
 import Types.Common
 import Control.Lens (makeLenses)
 import System.Random
+import Data.Set
 
 data GameObj = GameObj {
    _position :: (Int,Int)
@@ -14,7 +15,7 @@ data GameObj = GameObj {
 } deriving (Show)
 
 data Player = Player {
-  _position   :: (Int,Int)
+  _gameObj     :: GameObj
   ,_dir        :: Direction
   ,_score      :: Int
   ,_aliveTime  :: Int
@@ -23,26 +24,22 @@ data Player = Player {
 
 data Level = Level String
 data Board = Board {
-    _player1  :: Player
+   _player1   :: Player
   ,_levelName :: Level
+  ,_objs      :: Set GameObj
 }
 
-
-data Images = Images {
-  _playerImgs :: ImageMap
- ,_levelImgs :: ImageMap 
- }
 
 
 data GameState = GameState { 
      _board :: Board
    , _status :: GameStatus
    , _gen :: StdGen
-   , _images :: Images
+   , _images :: ImageMap
    }
 
+makeLenses ''GameObj
 makeLenses ''GameState
 makeLenses ''Board
 makeLenses ''Player
-makeLenses ''Images
 

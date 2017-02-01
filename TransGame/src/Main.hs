@@ -5,7 +5,6 @@ module Main where
 
 import GameController
 import Types.Common
-import Types.GameObjs
 
 import Render.Render 
 import Render.GlossInterface
@@ -15,7 +14,7 @@ import Input.Input
 
 import FRP.Yampa (Event(..), SF, (>>>))
 import qualified Graphics.Gloss.Interface.IO.Game as G
-
+import Data.Map (union)
 import System.Random (newStdGen, StdGen)
 
 main :: IO()
@@ -36,12 +35,12 @@ playGame =do
         (G.InWindow "Yampa Example" (420, 360) (800, 600))
         G.white
         60
-        (mainSF g (Images {_playerImgs=playerImgs, _levelImgs=levelImgs}))
+        (mainSF g (playerImgs `union` levelImgs))
 
 -- | Our main signal function which is responsible for handling the whole
 -- game process, starting from parsing the input, moving to the game logic
 -- based on that input and finally drawing the resulting game state to
 -- Gloss' Picture
-mainSF :: StdGen -> Images -> SF (Event InputEvent) G.Picture
+mainSF :: StdGen -> ImageMap -> SF (Event InputEvent) G.Picture
 mainSF g is = 
   parseInput >>> wholeGame g is >>> drawGame

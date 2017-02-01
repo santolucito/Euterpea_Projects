@@ -15,14 +15,14 @@ import GameLogic
 
 -- | Run the game while the player ('notDead')
 -- when the player ('lostGame'), then ('restartGame')
-wholeGame :: StdGen -> Images -> SF GameInput GameState
+wholeGame :: StdGen -> ImageMap -> SF GameInput GameState
 wholeGame g is = switch
   (notDead g is >>> (identity &&& lostGame))
   (restartGame g is)
 
 
 -- | Start the game using the initial game state 
-notDead :: StdGen -> Images -> SF GameInput GameState
+notDead :: StdGen -> ImageMap -> SF GameInput GameState
 notDead g is = runGame $ initialState g is
 
 -- | Run the game, keeping the internal state using dHold, updating the
@@ -46,7 +46,7 @@ lostGame = proc s -> do
 
 -- | When the game is lost we want to show the GameOver text for some time
 -- and then restart the game
-restartGame :: StdGen -> Images ->  GameState -> SF GameInput GameState
+restartGame :: StdGen -> ImageMap ->  GameState -> SF GameInput GameState
 restartGame g is s = switch
   (gameOver s &&& after 5 ())
   (const $ wholeGame g is)

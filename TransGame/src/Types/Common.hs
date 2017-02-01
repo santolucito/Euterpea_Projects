@@ -8,6 +8,7 @@ import qualified Graphics.Gloss.Interface.IO.Game as G
 import qualified Data.Map as M
 import Codec.Picture
 
+-- | mapping image file names to ..
 -- | the Image (fst) is used for look at the data of the picture
 -- | the G.Picutre is used for rendering
 type ImageMap = M.Map String (Image PixelRGBA8,G.Picture)
