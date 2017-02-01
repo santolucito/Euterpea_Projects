@@ -1,6 +1,5 @@
 module Types.HasImage where
 
- import Types.Common
  import Types.GameObjs
 
 -- | tough to tell where this module stops and ImageIO begins
@@ -26,10 +25,10 @@ module Types.HasImage where
  --test_0.gif, test_1.gif, etc
  --this is of course a terrible idea, but it should work
  getGifFrame :: Int -> Int -> FilePath -> FilePath
- getGifFrame time numFrames dir = let
+ getGifFrame time numFrames fdir = let
    thisFrame = (floor (fromIntegral time / 4)) `mod` numFrames
   in
-   dir ++"/frame_" ++ (show thisFrame) ++ "_delay-0.06s.gif"
+   fdir ++"/frame_" ++ (show thisFrame) ++ "_delay-0.06s.gif"
    
   
  
