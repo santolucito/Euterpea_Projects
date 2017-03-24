@@ -11,7 +11,7 @@ import Render.ImageIO
 
 import Control.Lens
 import Codec.Picture 
-import qualified Data.Set as S
+import qualified Data.HashSet as S
 
 import Settings
 
@@ -35,10 +35,15 @@ emptyBoard is = Board {
    ,_aliveTime= 0
    ,_score    = 0
    ,_inMotion = False}
- ,_objs = S.empty
+ ,_objs = S.singleton testcoin
  ,_levelName = Level Settings.levelImageSrc
 }
 
+testcoin = GameObj {
+  _position = (80,10)
+  ,_img = "coin.png"
+  ,_display = True
+}
 
 update :: (GameState, GameInput) -> GameState
 update (gameState, input) = tick $ case input of
@@ -51,8 +56,8 @@ move d g = if wallCollision (makeMove d g) then g else makeMove d g
 wallCollision :: GameState -> Bool
 wallCollision g = let
   (x,y) = view (board.player1.gameObj.position) g
-  xsize = 5
-  ysize = 8
+  xsize = 7
+  ysize = 10
   playerLocs = [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
   boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName g) x y) playerLocs
  in 

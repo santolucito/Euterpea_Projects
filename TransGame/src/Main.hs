@@ -30,12 +30,14 @@ playGame =do
 
     levelImgs <- makeImgMap levelImgSrcs
     playerImgs <- makeImgMap playerImgSrcs
+    --coinImg <- makeImgMap coinImgSrc
     
+    let imgs = levelImgs `union` playerImgs
     playYampa
         (G.InWindow "Yampa Example" (420, 360) (800, 600))
         G.white
         60
-        (mainSF g (playerImgs `union` levelImgs))
+        (mainSF g imgs)
 
 -- | Our main signal function which is responsible for handling the whole
 -- game process, starting from parsing the input, moving to the game logic

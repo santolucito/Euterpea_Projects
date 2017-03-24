@@ -12,12 +12,13 @@ import Graphics.Gloss.Juicy
 import Codec.Picture
 
 import qualified Data.Map as M
-
-import Debug.Trace
+import Data.Maybe
+--import Debug.Trace
 
 -- | Where in the file system do images come from
 levelImgSrcs :: [FilePath]
-levelImgSrcs = map ("pics/"++) [Settings.levelImageSrc]
+levelImgSrcs = map ("pics/"++) [Settings.levelImageSrc,"coin.png"]
+
 
 playerImgSrcs :: [FilePath]
 playerImgSrcs = let
@@ -26,14 +27,14 @@ playerImgSrcs = let
   map ("pics/"++) (concatMap f  ["Right", "Down", "Left", "Up"])
 
 -- | we need different images for differnet character states
---   use a map from state names (string for now) to image
+--   use a map from state names (string from file name) to image
 makeImgMap :: [FilePath] -> IO(ImageMap)
-makeImgMap is = do
- allImages <- mapM readImage is
+makeImgMap fileNames = do
+ allImages <- mapM readImage fileNames
  let imgs = map (either blackImage convertRGBA8) allImages
  let pics = map fromImageRGBA8 imgs --TODO: or is 'loadJuicy is' better?
  let toMap ks vs = M.fromList $ zip ks vs
- return $ toMap is (zip imgs pics)
+ return $ toMap fileNames (zip imgs pics)
 
  -- | get the chacter state image given a player state
  --   we also simulate a gif here
@@ -42,8 +43,8 @@ getImg obj g = let
   o = obj $ _board g
   s = getImageSrc o
   allImgs =  _images g
+  myImg = M.lookup (Settings.imageDir ++ s) allImgs
  in
-  allImgs M.! (Settings.imageDir ++ s)
-
+  fromMaybe (error ((show (Settings.imageDir++s))++show (M.keys allImgs))) myImg
 
   

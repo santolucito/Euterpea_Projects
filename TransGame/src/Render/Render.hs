@@ -2,7 +2,7 @@
 module Render.Render where
 
 import Data.Monoid
-import qualified Data.Set as S
+import qualified Data.HashSet as S
 import Graphics.Gloss
 
 import Types.Common
@@ -21,15 +21,18 @@ renderState :: GameState -> Picture
 renderState s = 
   placeBkgd s <>
   placePlayer s <>
-  --placeGameObjs s <>
+  (mconcat $ placeGameObjs s) <>
   placeText s
 
 placeGameObjs :: GameState -> [Picture]
 placeGameObjs g = let
-   os = view (board.objs) g :: S.Set GameObj
-   f o = undefined -- translate (-fromIntegral$fst$_position o) (-fromIntegral$snd$_position o) $ snd $ getImg _img _playerImgs g
+   os = view (board.objs) g :: S.HashSet GameObj
+   (px,py) = mapTup fromIntegral $ view (board.player1.gameObj.position) g
+   myPos o = ((fromIntegral$fst$_position o),(fromIntegral$snd$_position o))
+   f o = translate (fst$myPos o-px) (snd $myPos o-py) $ snd $ getImg (\b->o) g
  in
    map f (S.toList os)
+
 -- | keep the player centered at all times
 placePlayer :: GameState -> Picture
 placePlayer g = let

@@ -1,18 +1,23 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE DeriveGeneric #-}
 
 module Types.GameObjs where
 
 import Types.Common
 import Control.Lens (makeLenses)
 import System.Random
-import Data.Set
+import Data.HashSet
+import Data.Hashable
+import GHC.Generics
 
 data GameObj = GameObj {
    _position :: (Int,Int)
   ,_display :: Bool
   ,_img :: FilePath
-} deriving (Show)
+} deriving (Show,Eq,Generic)
+
+instance Hashable GameObj
 
 data Player = Player {
   _gameObj     :: GameObj
@@ -22,11 +27,12 @@ data Player = Player {
   ,_inMotion   :: Bool
 } deriving (Show)
 
+
 data Level = Level String
 data Board = Board {
    _player1   :: Player
   ,_levelName :: Level
-  ,_objs      :: Set GameObj
+  ,_objs      :: HashSet GameObj
 }
 
 
