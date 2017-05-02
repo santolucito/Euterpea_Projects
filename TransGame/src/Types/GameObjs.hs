@@ -23,7 +23,7 @@ data Player = Player {
   _gameObj     :: GameObj
   ,_dir        :: Direction
   ,_score      :: Int
-  ,_aliveTime  :: Int
+  ,_aliveTime  :: Double
   ,_inMotion   :: Bool
 } deriving (Show)
 

@@ -32,7 +32,7 @@ notDead g is = runGame $ initialState g is
 runGame :: GameState -> SF GameInput GameState
 runGame state = proc input -> do
   rec currentState <- iPre state -< updatedState
-      updatedState <- arr update -< (currentState, input)
+      updatedState <- update -< (currentState, input)
   returnA -< updatedState --currentState
 
 

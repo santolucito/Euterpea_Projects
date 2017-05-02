@@ -1,5 +1,6 @@
 {-#  LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE Arrows #-}
 
 module GameLogic where
 
@@ -14,6 +15,8 @@ import Codec.Picture
 import qualified Data.HashSet as S
 
 import Settings
+
+import FRP.Yampa
 
 import Debug.Trace
 
@@ -45,10 +48,20 @@ testcoin = GameObj {
   ,_display = True
 }
 
-update :: (GameState, GameInput) -> GameState
-update (gameState, input) = tick $ case input of
-  None -> set (board.player1.inMotion) False gameState
-  dir -> move dir gameState
+update :: SF (GameState, GameInput) GameState
+update = proc (gameState, input) -> 
+  do
+    t <- time -< ()
+    gs <- arr (uncurry trackTime) -< (t, gameState)
+    gs'<- arr useInput -< (gs,input)
+    returnA -< gs'
+  where
+    useInput (gameState,input) = case input of
+         None -> set (board.player1.inMotion) False gameState
+         dir -> move dir gameState
+
+trackTime :: Time -> GameState -> GameState
+trackTime = set (board.player1.aliveTime) 
 
 move :: Direction -> GameState -> GameState
 move d g = if wallCollision (makeMove d g) then g else makeMove d g
@@ -63,7 +76,6 @@ wallCollision g = let
  in 
   any (==blackAPixel) (boardPixels)
 
-traceMe x = traceShow x x
 pixelAtFromCenter :: Image PixelRGBA8 -> Int -> Int -> PixelRGBA8
 pixelAtFromCenter i x y = let
   h = imageHeight i 
@@ -93,5 +105,4 @@ makeMove d g = let
 isGameOver :: GameState -> Bool
 isGameOver s = False
 
-tick :: GameState -> GameState
-tick = over (board.player1.aliveTime) (+1) 
+traceMe x = traceShow x x
