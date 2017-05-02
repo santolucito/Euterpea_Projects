@@ -53,8 +53,9 @@ update = proc (gameState, input) ->
   do
     t <- time -< ()
     gs <- arr (uncurry trackTime) -< (t, gameState)
-    gs'<- arr useInput -< (gs,input)
-    returnA -< gs'
+    moved <- arr useInput -< (gs,input)
+    --collisons <- arr findObjCollisions -< moved 
+    returnA -< moved --collisons
   where
     useInput (gameState,input) = case input of
          None -> set (board.player1.inMotion) False gameState
@@ -66,15 +67,25 @@ trackTime = set (board.player1.aliveTime)
 move :: Direction -> GameState -> GameState
 move d g = if wallCollision (makeMove d g) then g else makeMove d g
 
+{-findObjCollisions :: GameState -> GameState
+findObjCollisions g =
+  playerLocs g-}
+
 wallCollision :: GameState -> Bool
 wallCollision g = let
   (x,y) = view (board.player1.gameObj.position) g
-  xsize = 7
-  ysize = 10
-  playerLocs = [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
-  boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName g) x y) playerLocs
+  boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName g) x y) (playerLocs g)
  in 
   any (==blackAPixel) (boardPixels)
+
+playerLocs :: GameState -> [(Int,Int)]
+playerLocs g = let
+  (x,y) = view (board.player1.gameObj.position) g
+  objImg = fst $ getImg (_player1) g
+  xsize = traceMe $ imageWidth objImg
+  ysize = traceMe $ imageHeight objImg
+ in
+  [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
 
 pixelAtFromCenter :: Image PixelRGBA8 -> Int -> Int -> PixelRGBA8
 pixelAtFromCenter i x y = let
