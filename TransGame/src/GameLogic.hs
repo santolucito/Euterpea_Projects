@@ -70,9 +70,12 @@ playerLocs :: GameState -> [(Int,Int)]
 playerLocs g = let
   player = view (board.player1.gameObj) g
   (x,y,xsize,ysize) = objectDims g player
+  xsize' = div xsize 2
+  ysize' = div ysize 2
  in
-  [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
+  [(x',y') | x' <- [x-xsize'.. x+xsize'],y' <- [y-ysize'.. y+ysize']]
 
+--all positions are from center of image
 objectDims :: GameState -> GameObj -> (Int,Int,Int,Int)
 objectDims g o = let
   objImg = fst $ getImg g o

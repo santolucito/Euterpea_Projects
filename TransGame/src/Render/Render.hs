@@ -29,7 +29,7 @@ placeGameObjs g = let
    os = S.filter (_display) os'
    (px,py) = mapTup fromIntegral $ view (board.player1.gameObj.position) g
    myPos o = ((fromIntegral$fst$_position o),(fromIntegral$snd$_position o))
-   f o = translate (fst$myPos o-px) (snd $myPos o-py) $ snd $ getImg g o
+   f o = translate (fst $myPos o-px) (snd $myPos o-py) $ snd $ getImg g o
  in
    map f (S.toList os)
 
