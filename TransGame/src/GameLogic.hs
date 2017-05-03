@@ -38,12 +38,17 @@ emptyBoard is = Board {
    ,_aliveTime= 0
    ,_score    = 0
    ,_inMotion = False}
- ,_objs = S.singleton testcoin
+ ,_objs = S.fromList [testcoin,testcoin2]
  ,_levelName = Level Settings.levelImageSrc
 }
 
 testcoin = GameObj {
   _position = (80,10)
+  ,_img = "coin.png"
+  ,_display = True
+}
+testcoin2 = GameObj {
+  _position = (150,10)
   ,_img = "coin.png"
   ,_display = True
 }
@@ -54,8 +59,8 @@ update = proc (gameState, input) ->
     t <- time -< ()
     gs <- arr (uncurry trackTime) -< (t, gameState)
     moved <- arr useInput -< (gs,input)
-    --collisons <- arr findObjCollisions -< moved 
-    returnA -< moved --collisons
+    collisons <- arr findObjCollisions -< moved 
+    returnA -< collisons
   where
     useInput (gameState,input) = case input of
          None -> set (board.player1.inMotion) False gameState
@@ -67,23 +72,34 @@ trackTime = set (board.player1.aliveTime)
 move :: Direction -> GameState -> GameState
 move d g = if wallCollision (makeMove d g) then g else makeMove d g
 
-{-findObjCollisions :: GameState -> GameState
+
+findObjCollisions :: GameState -> GameState
 findObjCollisions g =
-  playerLocs g-}
+  over (board.objs) (S.map (updateCollide g)) g
+
+updateCollide :: GameState -> GameObj -> GameObj
+updateCollide g o = 
+  if elem (_position o) (playerLocs g)
+  then set display False o
+  else o
+
+didCollide :: GameState -> GameObj -> GameObj -> Bool
+didCollide gs g1 g2 = undefined
 
 wallCollision :: GameState -> Bool
 wallCollision g = let
-  (x,y) = view (board.player1.gameObj.position) g
   boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName g) x y) (playerLocs g)
  in 
   any (==blackAPixel) (boardPixels)
 
+--TODO for pixel level detection
+--rather than building rect, get positions of all nonalpha pixels
 playerLocs :: GameState -> [(Int,Int)]
 playerLocs g = let
   (x,y) = view (board.player1.gameObj.position) g
   objImg = fst $ getImg (_player1) g
-  xsize = traceMe $ imageWidth objImg
-  ysize = traceMe $ imageHeight objImg
+  xsize = imageWidth objImg
+  ysize = imageHeight objImg
  in
   [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
 

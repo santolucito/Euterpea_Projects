@@ -26,7 +26,8 @@ renderState s =
 
 placeGameObjs :: GameState -> [Picture]
 placeGameObjs g = let
-   os = view (board.objs) g :: S.HashSet GameObj
+   os' = view (board.objs) g :: S.HashSet GameObj
+   os = S.filter (_display) os'
    (px,py) = mapTup fromIntegral $ view (board.player1.gameObj.position) g
    myPos o = ((fromIntegral$fst$_position o),(fromIntegral$snd$_position o))
    f o = translate (fst$myPos o-px) (snd $myPos o-py) $ snd $ getImg (\b->o) g
