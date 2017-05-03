@@ -12,6 +12,7 @@ import FRP.Yampa
 import Types.Common
 import Types.GameObjs
 import GameLogic
+import InitGameState
 
 -- | Run the game while the player ('notDead')
 -- when the player ('lostGame'), then ('restartGame')
