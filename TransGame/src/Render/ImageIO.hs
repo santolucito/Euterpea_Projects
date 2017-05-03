@@ -38,13 +38,12 @@ makeImgMap fileNames = do
 
  -- | get the chacter state image given a player state
  --   we also simulate a gif here
-getImg :: HasImageSrc a => (Board -> a) -> GameState -> (Image PixelRGBA8,G.Picture)
-getImg obj g = let
-  o = obj $ _board g
+getImg :: HasImageSrc a => GameState -> a -> (Image PixelRGBA8,G.Picture)
+getImg g o = let
   s = getImageSrc o
   allImgs =  _images g
   myImg = M.lookup (Settings.imageDir ++ s) allImgs
  in
-  fromMaybe (error ((show (Settings.imageDir++s))++show (M.keys allImgs))) myImg
+  fromMaybe (error (("Could not find image : "++ (show (Settings.imageDir++s)))++" \nWithin avaible image paths : "++show (M.keys allImgs))) myImg
 
   

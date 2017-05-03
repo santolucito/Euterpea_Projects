@@ -5,7 +5,6 @@ import Data.Monoid
 import qualified Data.HashSet as S
 import Graphics.Gloss
 
-import Types.Common
 import Types.GameObjs
 import FRP.Yampa
 import Render.ImageIO
@@ -30,14 +29,14 @@ placeGameObjs g = let
    os = S.filter (_display) os'
    (px,py) = mapTup fromIntegral $ view (board.player1.gameObj.position) g
    myPos o = ((fromIntegral$fst$_position o),(fromIntegral$snd$_position o))
-   f o = translate (fst$myPos o-px) (snd $myPos o-py) $ snd $ getImg (\b->o) g
+   f o = translate (fst$myPos o-px) (snd $myPos o-py) $ snd $ getImg g o
  in
    map f (S.toList os)
 
 -- | keep the player centered at all times
 placePlayer :: GameState -> Picture
 placePlayer g = let
-   p = snd $ getImg _player1 g
+   p = snd $ getImg g $ view (board.player1) g
    --(x,y) = mapTup fromIntegral ((view (board.player1.position)) g)
  in
    translate 0 0 p
@@ -45,7 +44,7 @@ placePlayer g = let
 -- | move the background around the player
 placeBkgd :: GameState -> Picture
 placeBkgd g = let
-   bkgd = snd$ getImg _levelName g 
+   bkgd = snd$ getImg g $ view (board.levelName) g
    (x,y) = mapTup fromIntegral $ view (board.player1.gameObj.position) g
  in
    translate (-x) (-y) bkgd

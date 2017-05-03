@@ -4,22 +4,20 @@
 
 module GameLogic where
 
-import System.Random (StdGen)
 import Prelude hiding (Left,Right)
 import Types.Common
 import Types.GameObjs
 import Render.ImageIO
-import InitGameState
+import Types.HasImage
 
 import Control.Lens
 import Codec.Picture 
 import qualified Data.HashSet as S
 
-import Settings
-
 import FRP.Yampa
 
 import Debug.Trace
+
 update :: SF (GameState, GameInput) GameState
 update = proc (gameState, input) -> 
   do
@@ -35,7 +33,8 @@ update = proc (gameState, input) ->
          dir -> move dir gameState
 
 trackTime :: Time -> GameState -> GameState
-trackTime = set (board.player1.aliveTime) 
+trackTime t g = 
+  over (board.player1) (updatePlayerGif t) g
 
 move :: Direction -> GameState -> GameState
 move d g = if wallCollision (makeMove d g) then g else makeMove d g
@@ -60,7 +59,8 @@ didCollide gs g1 g2 = undefined
 
 wallCollision :: GameState -> Bool
 wallCollision g = let
-  boardPixels = map (\(x,y) -> pixelAtFromCenter (fst $ getImg _levelName g) x y) (playerLocs g)
+  walls = fst $ getImg g $ view (board.levelName) g
+  boardPixels = map (\(x,y) -> pixelAtFromCenter walls x y) (playerLocs g)
  in 
   any (==blackAPixel) (boardPixels)
 
@@ -68,13 +68,18 @@ wallCollision g = let
 --rather than building rect, get positions of all nonalpha pixels
 playerLocs :: GameState -> [(Int,Int)]
 playerLocs g = let
-  (x,y) = view (board.player1.gameObj.position) g
-  objImg = fst $ getImg (_player1) g
-  xsize = imageWidth objImg
-  ysize = imageHeight objImg
+  player = view (board.player1.gameObj) g
+  (x,y,xsize,ysize) = objectDims g player
  in
   [(x',y') | x' <- [x-xsize..x+xsize],y' <- [y-ysize.. y+ysize]]
 
+objectDims :: GameState -> GameObj -> (Int,Int,Int,Int)
+objectDims g o = let
+  objImg = fst $ getImg g o
+  (x,y) = _position o
+ in
+  (x,y,imageWidth objImg,imageHeight objImg)
+  
 pixelAtFromCenter :: Image PixelRGBA8 -> Int -> Int -> PixelRGBA8
 pixelAtFromCenter i x y = let
   h = imageHeight i 

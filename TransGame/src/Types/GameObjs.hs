@@ -14,7 +14,8 @@ import GHC.Generics
 data GameObj = GameObj {
    _position :: (Int,Int)
   ,_display :: Bool
-  ,_img :: FilePath
+  ,_currentImg :: FilePath --fixed over time for static images
+  ,_gifPath :: Maybe FilePath --for gifs, the top level dir where component images are found
 } deriving (Show,Eq,Generic)
 
 instance Hashable GameObj
@@ -28,12 +29,12 @@ data Player = Player {
 } deriving (Show)
 
 
-data Level = Level String
+data Level = Level String deriving Show
 data Board = Board {
    _player1   :: Player
   ,_levelName :: Level
   ,_objs      :: HashSet GameObj
-}
+} deriving (Show)
 
 
 

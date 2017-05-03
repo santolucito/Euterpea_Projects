@@ -27,7 +27,8 @@ emptyBoard is = Board {
   _player1 = Player {
     _gameObj  = GameObj {
       _position = (0,0)
-     ,_img = ""
+     ,_currentImg = ""
+     ,_gifPath = Just ""
      ,_display = True}
    ,_dir      = Left
    ,_aliveTime= 0
@@ -39,12 +40,14 @@ emptyBoard is = Board {
 
 testcoin = GameObj {
   _position = (80,10)
-  ,_img = "coin.png"
+  ,_currentImg = "coin.png"
+  ,_gifPath = Nothing
   ,_display = True
 }
 testcoin2 = GameObj {
   _position = (150,10)
-  ,_img = "coin.png"
+  ,_currentImg = "coin.png"
+  ,_gifPath = Nothing
   ,_display = True
 }
 
