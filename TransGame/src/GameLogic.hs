@@ -29,6 +29,7 @@ update = proc (gameState, input) ->
     collisons <- arr findObjCollisions -< moved 
     returnA -< collisons
   where
+    --TODO make continuos time based motion
     useInput (gameState,input) = case input of
          None -> set (board.player1.inMotion) False gameState
          dir -> move dir gameState
@@ -44,11 +45,15 @@ findObjCollisions :: GameState -> GameState
 findObjCollisions g =
   over (board.objs) (S.map (updateCollide g)) g
 
+--what happens to an obj when the player collides with it
 updateCollide :: GameState -> GameObj -> GameObj
 updateCollide g o = 
   if elem (_position o) (playerLocs g)
   then set display False o
   else o
+
+--what happens to the player when it collides with an obj
+--playerCollideUpdate :: ??
 
 didCollide :: GameState -> GameObj -> GameObj -> Bool
 didCollide gs g1 g2 = undefined
