@@ -26,24 +26,45 @@
 
 
 > editor :: UISF () ()
-<<<<<<< HEAD
-> editor =  title "Saving Text" $ topDown $ proc _ -> do
->   code <- leftRight $ label "Code: " >>> textField NoWrap "1+?" -< Nothing
->   input <- leftRight $ label "Input: " >>> (setLayout (makeLayout (Stretchy 300) (Fixed 300)) $ textField NoWrap "1\n2" ) -< Nothing
->   c <- arr parse >>> unique -< (code, input)
-=======
 > editor = setLayout (makeLayout (Stretchy 150) (Fixed 100)) $ 
 >                title "Saving Text" $ topDown $ proc _ -> do
->   code <- leftRight $ label "Code: " >>> textField NoWrap "1+?" -< Nothing
->   input <-leftRight $ label "Input: " >>> textField NoWrap "1\n2" -< Nothing
->   c <- arr parse >>> unique -< (uitextToString code, uitextToString input)
->>>>>>> 9cc965b48137dcffc5cdc5fb1daaee898b584f88
->   output <- uisfPipeE (mapM runCode) -< c
->   o <- (evMap $ arr collect )>>> hold ["none"] -< output
->   leftRight $ label "Output: " >>> textField NoWrap "" -< Just $ concat $ intersperse "\n"  o
+>   rec
+>     generatedCode <- delay Nothing -< generatedCode'
+>     pbeMode <- checkbox "PBE" False -< ()
+>     code <- leftRight $ label "Code: " >>> textField NoWrap "2+?" -< if pbeMode then generatedCode else Nothing
+>     input <-leftRight $ label "Input: " >>> textField NoWrap "1\n2" -< Nothing
+>     c <- arr parse >>> unique -< (uitextToString code, uitextToString input)
+>     output <- uisfPipeE (mapM runCode) -< c
+>     o <- (evMap $ arr collect )>>> hold ["none"] -< output
+>     modifiedOutput <- leftRight $ label "Output: " >>> textField NoWrap "" -< if pbeMode then Nothing else Just $ concat $ intersperse "\n"  o
+>     generatedCode' <- arr genCode -< (uitextToString code, uitextToString input, uitextToString modifiedOutput)
 >   returnA -< ()
 
+> genCode :: (String,String,String) -> Maybe String
+> genCode (code,inputExs,outputExs) = 
+>   let
+>     codeCandidates = permuteCode code
+>     updatedCode = dropWhile (\c-> not $ codeFits (c,inputExs,outputExs)) ([code]++codeCandidates)
+>   in 
+>     if length updatedCode > 0 
+>     then Just $ head (updatedCode)
+>     else Just code
 
+> permuteCode :: String -> [String]
+> permuteCode original =
+>   map (\newOp -> (map (\c -> if isOperator c then newOp else c) ) original) ['+','*','-'] ++
+>   map (\i -> (map (\c -> if isNumber c then intToDigit i else c) ) original) [1..9]
+
+> isOperator c = 
+>   c=='+' || c=='*' || c=='-'
+
+> codeFits :: (String,String,String) -> Bool
+> codeFits (code,inputExs,outputExs) = let
+>   o = collect $ map (unsafePerformIO. runCode) $ parse (code,inputExs)
+>  in
+>   outputExs == (concat $ intersperse "\n" o)
+
+> runCode :: String -> IO (Either InterpreterError String)
 > runCode c = 
 >   runInterpreter $ setImports ["Prelude"] >> interpret c (as::String)
 
