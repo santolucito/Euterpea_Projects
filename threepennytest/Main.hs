@@ -1,55 +1,86 @@
 import Control.Monad (void)
-import Data.Maybe
-import Text.Printf
-import Safe          (readMay)
 
 import qualified Graphics.UI.Threepenny as UI
 import Graphics.UI.Threepenny.Core
+import Graphics.UI.Threepenny.Events
 
-import Currency
+import TimerControl
 
-import Debug.Trace
-import System.IO.Unsafe
-
+import Data.Time.Clock.POSIX
+import Data.Time.Format
 {-----------------------------------------------------------------------------
     Main
 ------------------------------------------------------------------------------}
 main :: IO ()
 main = startGUI defaultConfig setup
 
+data Action = Clicked | MouseLeave 
+       deriving Eq
+
 setup :: Window -> UI ()
 setup window = void $ do
-    return window # set title "Currency Converter"
+    return window # set title "Kitchen Timer"
 
-    dollar <- UI.input
-    euro   <- UI.input
-    
+    timerVal <- UI.h1
+    min <- UI.button
+    sec <- UI.button
+    start <- UI.button
+    let buttons = [min, sec, start]     
+
     getBody window #+ [
             column [
-                grid [[string "Dollar:", element dollar]
-                     ,[string "Euro:"  , element euro  ]]
-            , string "Amounts update while typing."
+                grid [[element timerVal]
+                     ,[element min, element sec, element start]]
             ]]
 
+    let
+       clickAsPos :: Element -> Event Action
+       clickAsPos = fmap (\_ -> Clicked) . UI.click
 
-    euroIn   <- stepper "0" $ UI.valueChange euro
-    dollarIn <- stepper "0" $ UI.valueChange dollar
+       leaveAsTag = fmap (\_ -> MouseLeave) . UI.leave
 
+       buttonAsB x = stepper False $ (pure (==[Clicked])) <@> (unions [clickAsPos x, leaveAsTag x])
+
+    -- need this to be true on button down and false on button up?
+    minIn <- buttonAsB min
+    secIn <- buttonAsB sec
+    startIn <- buttonAsB start
 
     let
-        rate = 0.7 :: Double
-
-        rounder n f = (fromInteger $ round $ f * (10^n)) / (10.0^^n)
-
-        euroToDollar :: String -> String
-        euroToDollar euro   = show $ rounder 2 $ (/ rate) $ read euro
-        dollarToEuro dollar = show $ rounder 2 $ (* rate) $ read dollar
-
         cell :: a -> Behavior a -> UI (Behavior a)
-        cell v c = stepper v (c <@ (unionWith (\x y -> x) (UI.valueChange euro) (UI.valueChange dollar)))
+        cell v c = stepper v (c <@ (unions [click min, click sec, click start]))
 
-    (dollarDisplay, euroDisplay) <- currency cell dollarToEuro euroToDollar "0" "0" dollarIn euroIn
+        secToTimestamp = formatTime defaultTimeLocale "%X" . posixSecondsToUTCTime . fromIntegral
 
-    element dollar # sink value dollarDisplay
-    element euro # sink value euroDisplay
+        p_eq = (==)
+        f_zero = 0
+        f_countdown = (+)
+        f_countup = (-)
+        f_display = secToTimestamp
+        f_incMinutes = (+60)
+        f_incSeconds = (+1)
+        i_dsp = "00:00"
+        i_time = 0
+        s_dt = pure 0 --TODO
+        s_btnMin = (minIn :: Behavior Bool)
+        s_btnSec = secIn
+        s_btnStartStop = startIn
 
+    (display, _) <- timer_without_beep
+                      cell 
+                      p_eq
+                      f_zero
+                      f_countdown
+                      f_countup
+                      f_display
+                      f_incMinutes
+                      f_incSeconds
+                      i_dsp
+                      i_time
+                      s_dt
+                      s_btnMin
+                      s_btnSec
+                      s_btnStartStop
+
+
+    element timerVal # sink value display
